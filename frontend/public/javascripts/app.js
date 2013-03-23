@@ -432,6 +432,7 @@ window.require.register("lib/view", function(exports, require, module) {
 });
 window.require.register("routers/app_router", function(exports, require, module) {
   var AppRouter, _ref,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -439,12 +440,34 @@ window.require.register("routers/app_router", function(exports, require, module)
     __extends(AppRouter, _super);
 
     function AppRouter() {
-      _ref = AppRouter.__super__.constructor.apply(this, arguments);
+      this.curiosityDemo = __bind(this.curiosityDemo, this);
+      this.astroDataDemo = __bind(this.astroDataDemo, this);
+      this.solarSystemDemo = __bind(this.solarSystemDemo, this);
+      this.index = __bind(this.index, this);    _ref = AppRouter.__super__.constructor.apply(this, arguments);
       return _ref;
     }
 
     AppRouter.prototype.routes = {
-      '': function() {}
+      '': 'index',
+      '/solar-system': 'solarSystemDemo',
+      '/astro-data': 'astroDataDemo',
+      '/curiosity': 'curiosityDemo'
+    };
+
+    AppRouter.prototype.index = function() {
+      return console.log('index');
+    };
+
+    AppRouter.prototype.solarSystemDemo = function() {
+      return console.log('solarSystemDemo');
+    };
+
+    AppRouter.prototype.astroDataDemo = function() {
+      return console.log('astroDataDemo');
+    };
+
+    AppRouter.prototype.curiosityDemo = function() {
+      return console.log('curiosityDemo');
     };
 
     return AppRouter;
@@ -494,5 +517,5 @@ window.require.register("views/templates/home", function(exports, require, modul
     
 
 
-    return "<div class='home'>\n  <ul>\n    <li>Solar System</li>\n    <li>Astronomical Data</li>\n    <li>Curiosity</li>\n  </ul>\n</div>";});
+    return "<div class='home'>\n  <a href='/#/solar-system'>Solar System</a>\n  <a href='/#/astro-data'>Astronomical Data</a>\n  <a href='/#/curiosity'>Curiosity</a>\n</div>";});
 });

@@ -9,4 +9,3 @@ module.exports = class AppView extends View
     CSLE?.Routers?.AppRouter = @router
     
     @html require 'views/templates/home'
-
