@@ -8,16 +8,19 @@ module.exports = class AstroDataView extends View
   sampleSpectra: 'http://astrojs.s3.amazonaws.com/sample/spec-0406-51869-0012.fits'
   
   # socket: new CSLESocket('astro_data', 'ws://localhost:8888')
-
+  
+  events:
+    'change input[data-type="q"]' : 'onQ'
+  
+  onQ: (e) ->
+    console.log 'onQ'
+  
   initialize: ->
-    @once 'start', @start
-    
-  start: =>
-    $.getScript('javascripts/astro.js', (e) => @getData() )
+    @once 'get-data', @getData
     
   render: =>
     @html @template
-    @trigger 'start'
+    @trigger 'get-data'
     @
   
   # Get remote data (should only be called once)
