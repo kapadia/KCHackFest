@@ -511,6 +511,94 @@ window.require.register("views/app_view", function(exports, require, module) {
   })(View);
   
 });
+window.require.register("views/astro_data", function(exports, require, module) {
+  var AstroDataView, View, _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  module.exports = AstroDataView = (function(_super) {
+    __extends(AstroDataView, _super);
+
+    function AstroDataView() {
+      _ref = AstroDataView.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    AstroDataView.prototype.template = require('views/templates/astro_data');
+
+    AstroDataView.prototype.className = 'astro_data';
+
+    return AstroDataView;
+
+  })(View);
+  
+});
+window.require.register("views/curiosity", function(exports, require, module) {
+  var CuriosityView, View, _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  module.exports = CuriosityView = (function(_super) {
+    __extends(CuriosityView, _super);
+
+    function CuriosityView() {
+      _ref = CuriosityView.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    CuriosityView.prototype.template = require('views/templates/curiosity');
+
+    CuriosityView.prototype.className = 'curiosity';
+
+    return CuriosityView;
+
+  })(View);
+  
+});
+window.require.register("views/solar_system", function(exports, require, module) {
+  var SolarSystemView, View, _ref,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  View = require('../lib/view');
+
+  module.exports = SolarSystemView = (function(_super) {
+    __extends(SolarSystemView, _super);
+
+    function SolarSystemView() {
+      _ref = SolarSystemView.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    SolarSystemView.prototype.template = require('views/templates/solar_system');
+
+    SolarSystemView.prototype.className = 'solar_system';
+
+    return SolarSystemView;
+
+  })(View);
+  
+});
+window.require.register("views/templates/astro_data", function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    
+
+
+    return "<!-- .astro_data -->\n";});
+});
+window.require.register("views/templates/curiosity", function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    
+
+
+    return "<!-- .curiosity -->\n";});
+});
 window.require.register("views/templates/home", function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
@@ -518,4 +606,12 @@ window.require.register("views/templates/home", function(exports, require, modul
 
 
     return "<div class='home'>\n  <a href='/#solar-system'>Solar System</a>\n  <a href='/#astro-data'>Astronomical Data</a>\n  <a href='/#curiosity'>Curiosity</a>\n</div>";});
+});
+window.require.register("views/templates/solar_system", function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    
+
+
+    return "<!-- .solar_system -->\n";});
 });
