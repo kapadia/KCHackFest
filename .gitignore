@@ -4,3 +4,6 @@
 *.fz
 node_modules/
 tmp/
+frontend/public/javascripts/app.js
+frontend/public/javascripts/app.css
+frontend/public/test/javascripts/test.js
