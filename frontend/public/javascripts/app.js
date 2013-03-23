@@ -463,7 +463,8 @@ window.require.register("routers/app_router", function(exports, require, module)
     };
 
     AppRouter.prototype.astroDataDemo = function() {
-      return console.log('astroDataDemo');
+      console.log('astroDataDemo');
+      return CSLE.Views.AppView.astroData.render();
     };
 
     AppRouter.prototype.curiosityDemo = function() {
@@ -476,13 +477,15 @@ window.require.register("routers/app_router", function(exports, require, module)
   
 });
 window.require.register("views/app_view", function(exports, require, module) {
-  var AppRouter, AppView, View, _ref,
+  var AppRouter, AppView, AstroDataView, View, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   View = require('lib/view');
 
   AppRouter = require('routers/app_router');
+
+  AstroDataView = require('views/astro_data');
 
   module.exports = AppView = (function(_super) {
     __extends(AppView, _super);
@@ -497,6 +500,7 @@ window.require.register("views/app_view", function(exports, require, module) {
     AppView.prototype.initialize = function() {
       var _ref1;
 
+      this.astroData = new AstroDataView();
       this.router = new AppRouter();
       if (typeof CSLE !== "undefined" && CSLE !== null) {
         if ((_ref1 = CSLE.Routers) != null) {
@@ -529,6 +533,13 @@ window.require.register("views/astro_data", function(exports, require, module) {
     AstroDataView.prototype.template = require('views/templates/astro_data');
 
     AstroDataView.prototype.className = 'astro_data';
+
+    AstroDataView.prototype.el = 'body.application';
+
+    AstroDataView.prototype.render = function() {
+      this.html(this.template);
+      return this;
+    };
 
     return AstroDataView;
 
@@ -589,7 +600,7 @@ window.require.register("views/templates/astro_data", function(exports, require,
     
 
 
-    return "<!-- .astro_data -->\n";});
+    return "<div class='astro_data'></div>\n";});
 });
 window.require.register("views/templates/curiosity", function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -605,7 +616,7 @@ window.require.register("views/templates/home", function(exports, require, modul
     
 
 
-    return "<div class='home'>\n  <a href='/#solar-system'>Solar System</a>\n  <a href='/#astro-data'>Astronomical Data</a>\n  <a href='/#curiosity'>Curiosity</a>\n</div>";});
+    return "<div id='main'>\n\n<h1>CSLE</h1>\n<i>Collaborative Science Learning Environment</i>\n\n<div class='home'>\n  <a href='/#solar-system'>Solar System</a>\n  <a href='/#astro-data'>Astronomical Data</a>\n  <a href='/#curiosity'>Curiosity</a>\n</div>\n\n<!-- TODO: buttons to show who's connected -->\n\n</div>";});
 });
 window.require.register("views/templates/solar_system", function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {

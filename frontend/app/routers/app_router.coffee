@@ -1,3 +1,4 @@
+
 module.exports = class AppRouter extends Backbone.Router
   routes:
     ''             : 'index'
@@ -14,6 +15,7 @@ module.exports = class AppRouter extends Backbone.Router
 
   astroDataDemo: =>
     console.log 'astroDataDemo'
-
+    CSLE.Views.AppView.astroData.render()
+  
   curiosityDemo: =>
     console.log 'curiosityDemo'
