@@ -7,3 +7,4 @@ tmp/
 frontend/public/javascripts/app.js
 frontend/public/javascripts/app.css
 frontend/public/test/javascripts/test.js
+frontend/public/javascripts/vendor.js

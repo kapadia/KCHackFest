@@ -517,6 +517,7 @@ window.require.register("views/app_view", function(exports, require, module) {
 });
 window.require.register("views/astro_data", function(exports, require, module) {
   var AstroDataView, View, _ref,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -526,7 +527,10 @@ window.require.register("views/astro_data", function(exports, require, module) {
     __extends(AstroDataView, _super);
 
     function AstroDataView() {
-      _ref = AstroDataView.__super__.constructor.apply(this, arguments);
+      this.createVisualization = __bind(this.createVisualization, this);
+      this.getImage = __bind(this.getImage, this);
+      this.getData = __bind(this.getData, this);
+      this.render = __bind(this.render, this);    _ref = AstroDataView.__super__.constructor.apply(this, arguments);
       return _ref;
     }
 
@@ -536,9 +540,46 @@ window.require.register("views/astro_data", function(exports, require, module) {
 
     AstroDataView.prototype.el = 'body.application';
 
+    AstroDataView.prototype.sampleImage = 'http://astrojs.s3.amazonaws.com/sample/m101.fits';
+
+    AstroDataView.prototype.initialize = function() {
+      return this.once('get-data', this.getData);
+    };
+
     AstroDataView.prototype.render = function() {
       this.html(this.template);
+      this.trigger('get-data');
       return this;
+    };
+
+    AstroDataView.prototype.getData = function() {
+      return new astro.FITS.File(this.sampleImage, this.getImage);
+    };
+
+    AstroDataView.prototype.getImage = function(f) {
+      var dataunit, opts;
+
+      console.log('getImage');
+      dataunit = f.getDataUnit();
+      opts = {};
+      opts.dataunit = dataunit;
+      return dataunit.getFrameAsync(0, this.createVisualization, opts);
+    };
+
+    AstroDataView.prototype.createVisualization = function(arr, opts) {
+      var dataunit, el, extent, height, webfits, width;
+
+      console.log(arr, opts);
+      dataunit = opts.dataunit;
+      width = dataunit.width;
+      height = dataunit.height;
+      extent = dataunit.getExtent(arr);
+      el = document.querySelector('.astro_data');
+      webfits = new astro.WebFITS(el, 400);
+      webfits.setupControls();
+      console.log(width, height);
+      webfits.loadImage('sample', arr, width, height);
+      return webfits.setExtent(extent[0], extent[1]);
     };
 
     return AstroDataView;

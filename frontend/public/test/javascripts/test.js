@@ -108,4 +108,43 @@ window.require.register("test/views/app_view_test", function(exports, require, m
   });
   
 });
+window.require.register("test/views/astro_data_test", function(exports, require, module) {
+  var AstroDataView;
+
+  AstroDataView = require('views/astro_data');
+
+  describe('AstroDataView', function() {
+    return beforeEach(function() {
+      return this.view = new AstroDataView();
+    });
+  });
+  
+});
+window.require.register("test/views/curiosity_test", function(exports, require, module) {
+  var CuriosityView;
+
+  CuriosityView = require('views/curiosity');
+
+  describe('CuriosityView', function() {
+    return beforeEach(function() {
+      return this.view = new CuriosityView();
+    });
+  });
+  
+});
+window.require.register("test/views/solar_system_test", function(exports, require, module) {
+  var SolarSystemView;
+
+  SolarSystemView = require('views/solar_system');
+
+  describe('SolarSystemView', function() {
+    return beforeEach(function() {
+      return this.view = new SolarSystemView();
+    });
+  });
+  
+});
 window.require('test/views/app_view_test');
+window.require('test/views/astro_data_test');
+window.require('test/views/curiosity_test');
+window.require('test/views/solar_system_test');
