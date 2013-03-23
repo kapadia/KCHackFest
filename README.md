@@ -1,6 +1,8 @@
 # Collaborative Science Learning Environment
 
-FITS, Solar System, Curiosity goodness.
+*Abbreviated CSLE, pronounced "sizzle".*
+
+Interactive, collaborative visualization for FITS, Solar System, and Curiosity goodness.
 
 ## Local Setup
 
