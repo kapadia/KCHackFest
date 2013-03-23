@@ -6209,16 +6209,15 @@ function planetsOrbit( time ){
 
 function setSolarSystemScale(){
 	if ( scaling ){
-		var sunS = 1392684 * ssScale.sunScale;
-		ss[0].scale.set( sunS, sunS, sunS );
+	    var sunS = 1392684 * ssScale.sunScale;
+	    ss[0].scale.set( sunS, sunS, sunS );
 
-		for ( var i = 1; i < ss.length; i ++ ) {
-			var planetS = ephemeris[i].size * ssScale.planetScale;
-			ss[i].scale.set( planetS, planetS, planetS );
-			// ss[i].orbit.scale.set( ssScale.s, ssScale.s, ssScale.s );
+	    for ( var i = 1; i < ss.length; i ++ ) {
+		var planetS = ephemeris[i].size * ssScale.planetScale;
+		ss[i].scale.set( planetS, planetS, planetS );
+		// ss[i].orbit.scale.set( ssScale.s, ssScale.s, ssScale.s );
 	    }
-	scaling = false;
-
+	    scaling = false;
 	}
 }
 
@@ -6357,6 +6356,12 @@ function setLoadMessage( msg ){
 }
 
 $(document).ready( function() {
+        // sockets
+        if ('WebSocket' in window){
+    	    conn = new CSLESocket('solar_system', 'ws://localhost:8888')
+        } else {
+            console.log("websocket don't work!!");
+        }
 
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
@@ -6385,13 +6390,6 @@ $(document).ready( function() {
 } );
 
 function init() {
-        // sockets
-        if ('WebSocket' in window){
-    	    conn = new CSLESocket('solar_system', 'ws://localhost:8888')
-        } else {
-            console.log("websocket don't work!!");
-        }
-
 	/********************************
 		SCENE SETUP
 	********************************/
@@ -6476,18 +6474,31 @@ function buildGUI(){
 	gui.add(ssScale, 's', 1, 100 )
 		.name('SS Scale')
 		.onChange( function(){
-			scaling = true;
+		    conn.send('ssScale-change', {ssScale: ssScale})
+		    scaling = true;
 		});
 	gui.add(ssScale, 'sunScale', .00001, .00002 )
 		.name('Sun Scale')
 		.onChange( function(){
-			scaling = true;
+		    conn.send('ssScale-change', {ssScale: ssScale})
+		    scaling = true;
 		});
 	gui.add(ssScale, 'planetScale', .0001, .001 )
 		.name('Planet Scale')
 		.onChange( function(){
-			scaling = true;
+		    conn.send('ssScale-change', {ssScale: ssScale})
+		    scaling = true;
 		});
+
+        conn.on('ssScale-change', function(data) {
+	    ssScale = data.ssScale
+	    scaling = true
+	    for (var i in gui.__controllers) {
+		console.log(i)
+		console.log(gui.__controllers[i])
+		gui.__controllers[i].updateDisplay();
+	    }
+	})
 
 	var camFolder = gui.addFolder( 'Camera Positions' );
 	camFolder.open();
