@@ -8,10 +8,10 @@ FITS, Solar System, Curiosity goodness.
     npm install brunch -g
     
     # Install project dependencies
+    cd frontend
     npm install .
     
     # To run local server
-    cd frontend
     brunch w -s
     
     # To build
