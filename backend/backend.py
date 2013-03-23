@@ -2,6 +2,14 @@ import tornado.web
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
 
+class Client:
+  def __init__(self, conn):
+    self.can_broadcast = True
+    self.conn = conn
+
+  def send(msg):
+    self.conn.write_message(msg)
+
 # process-global set of per-document connected clients
 doc_clients = {}
 
@@ -9,18 +17,24 @@ class InteractionHandler(WebSocketHandler):
   '''Handles all websocket connections and messages'''
   def open(self, doc):
     self.doc = doc
+    self.client = Client(self)
+
     if doc not in doc_clients:
       doc_clients[doc] = set()
-    doc_clients[doc].add(self)
+
+    doc_clients[doc].add(self.client)
 
 
   def on_message(self, msg):
+    if not self.client.can_broadcast:
+      return
+
     for c in doc_clients[self.doc]:
-      if c is not self:
-        c.write_message(msg)
+      if c.conn is not self:
+        c.send(msg)
 
   def on_close(self):
-    doc_clients[self.doc].remove(self)
+    doc_clients[self.doc].remove(self.client)
 
 
 application = tornado.web.Application([
