@@ -12,7 +12,7 @@ exports.config =
         'javascripts/app.js': /^app/
         'javascripts/vendor.js': /^vendor\/scripts\/common/
         'javascripts/solar_system.js': /^vendor\/scripts\/solar_system/
-        'javascripts/astro_data.js': /^vendor\/scripts\/astro_data/
+        'javascripts/astro_data.js': /^vendor\/scripts\/astro/
         'test/javascripts/test.js': /^test(\/|\\)(?!vendor)/
         'test/javascripts/test-vendor.js': /^test(\/|\\)(?=vendor)/
       order:
