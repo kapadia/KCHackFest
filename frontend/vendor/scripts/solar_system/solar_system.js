@@ -5897,7 +5897,7 @@ var Label = function( glObject, size, element ) {
     label.visMin = 0;
     label.visMax = 10000;
 
-	element.appendChild( label );
+	//element.appendChild( label );
 
 	label.setPosition = function( x, y ) {
 		x -= this.labelWidth * 0.5;
