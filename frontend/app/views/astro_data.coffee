@@ -10,10 +10,9 @@ module.exports = class AstroDataView extends View
   # socket: new CSLESocket('astro_data', 'ws://localhost:8888')
   
   events:
-    'change input[data-type="q"]' : 'onQ'
+    'change input[data-type="q"]'     : 'onQ'
+    'change input[data-type="alpha"]' : 'onAlpha'
   
-  onQ: (e) ->
-    console.log 'onQ'
   
   initialize: ->
     @once 'get-data', @getData
@@ -67,7 +66,6 @@ module.exports = class AstroDataView extends View
       @webfits.setAlpha(0.03);
       @webfits.setQ(0.01);
       @webfits.drawColor('i', 'g', 'r');
-      window.webfits = @webfits
       
       # Setup mouse callbacks for WebFITS
       callbacks =
@@ -84,6 +82,12 @@ module.exports = class AstroDataView extends View
           console.log 'onmouseover'
 
       @webfits.setupControls(callbacks)
+    
+  onQ: (e) =>
+    @webfits.setQ(e.currentTarget.value)
+
+  onAlpha: (e) =>
+    @webfits.setAlpha(e.currentTarget.value)
     
   getSpectra: (f) =>
     dataunit = f.getDataUnit()
