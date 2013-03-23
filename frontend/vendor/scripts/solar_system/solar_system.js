@@ -6469,7 +6469,17 @@ function init() {
 function buildGUI(){
 
 	var gui = new dat.GUI();
-	gui.add( t, 'multiplier', 0, 5).name( 'Orbit Speed' );
+	var mult = gui.add( t, 'multiplier', 0, 5)
+	              .name( 'Orbit Speed' )
+                      .onChange(function(val) {
+			  conn.send('multiplier-change', {val: val})
+		      })
+
+        conn.on('multiplier-change', function(data) {
+	    t['multiplier'] = data.val
+	    mult.object['multiplier'] = data.val
+	    mult.updateDisplay()
+	})
 
         var scales = []
 	scales.push(gui.add(ssScale, 's', 1, 100 )
