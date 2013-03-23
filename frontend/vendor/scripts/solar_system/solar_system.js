@@ -6358,7 +6358,7 @@ function setLoadMessage( msg ){
 $(document).ready( function() {
         // sockets
         if ('WebSocket' in window){
-    	    conn = new CSLESocket('solar_system', 'ws://10.18.14.2:8888')
+    	    conn = new CSLESocket('solar_system', 'ws://' + window.location.host + ':8888')
         } else {
             console.log("websocket don't work!!");
         }
