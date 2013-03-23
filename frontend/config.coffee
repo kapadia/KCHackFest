@@ -4,7 +4,7 @@ exports.config =
     options:
       indentation:
         value: 2
-        level: "error"
+        level: "warning"
 
   files:
     javascripts:
