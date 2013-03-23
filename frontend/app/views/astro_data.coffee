@@ -32,9 +32,10 @@ module.exports = class AstroDataView extends View
     for band in @bands
       opts =
         band: band
-      new astro.FITS.File("data/frame-#{band}-006073-4-0063.fits", @getImage, opts)
-
-  getImage: (f, opts) =>
+        filename: "frame-#{band}-006073-4-0063.fits"
+      new astro.FITS.File("data/frame-#{band}-006073-4-0063.fits", @fitsHandler, opts)
+  
+  fitsHandler: (f, opts) =>
     # Get the reference to data chunk from the file
     dataunit = f.getDataUnit()
 
@@ -43,7 +44,36 @@ module.exports = class AstroDataView extends View
 
     # Read the data (spawns worker)
     dataunit.getFrameAsync(0, @createVisualization, opts)
-
+    
+    # Render header to DOM
+    @createHeader(f.getHeader())
+  
+  createHeader: (header) ->
+    
+    # Format header data for D3
+    data = []
+    cards = header.cards
+    for key, value of cards
+      data.push [key, value.value]
+    
+    # Append table and tbody
+    table = d3.select('.headers')
+      .append('table')
+    tbody = table.append('tbody')
+    
+    # Create row for each object
+    rows = tbody.selectAll("tr")
+      .data(data)
+      .enter()
+      .append("tr")
+    
+    # Create cell for each object in row
+    cells = rows.selectAll("td")
+      .data((d) -> d)
+      .enter()
+      .append("td")
+        .text((d) -> return d)
+  
   createVisualization: (arr, opts) =>
     dataunit = opts.dataunit
     width = dataunit.width
