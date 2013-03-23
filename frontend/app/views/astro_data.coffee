@@ -42,7 +42,6 @@ module.exports = class AstroDataView extends View
     el = document.querySelector('.astro_data')
     webfits = new astro.WebFITS(el, 400)
     webfits.setupControls()
-    console.log width, height
     webfits.loadImage('sample', arr, width, height)
     webfits.setExtent(extent[0], extent[1])
     

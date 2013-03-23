@@ -14,7 +14,6 @@ module.exports = class AppRouter extends Backbone.Router
     console.log 'solarSystemDemo'
 
   astroDataDemo: =>
-    console.log 'astroDataDemo'
     CSLE.Views.AppView.astroData.render()
   
   curiosityDemo: =>
