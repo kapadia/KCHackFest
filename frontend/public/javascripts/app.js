@@ -449,9 +449,9 @@ window.require.register("routers/app_router", function(exports, require, module)
 
     AppRouter.prototype.routes = {
       '': 'index',
-      '/solar-system': 'solarSystemDemo',
-      '/astro-data': 'astroDataDemo',
-      '/curiosity': 'curiosityDemo'
+      'solar-system': 'solarSystemDemo',
+      'astro-data': 'astroDataDemo',
+      'curiosity': 'curiosityDemo'
     };
 
     AppRouter.prototype.index = function() {
@@ -517,5 +517,5 @@ window.require.register("views/templates/home", function(exports, require, modul
     
 
 
-    return "<div class='home'>\n  <a href='/#/solar-system'>Solar System</a>\n  <a href='/#/astro-data'>Astronomical Data</a>\n  <a href='/#/curiosity'>Curiosity</a>\n</div>";});
+    return "<div class='home'>\n  <a href='/#solar-system'>Solar System</a>\n  <a href='/#astro-data'>Astronomical Data</a>\n  <a href='/#curiosity'>Curiosity</a>\n</div>";});
 });
