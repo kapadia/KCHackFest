@@ -1,4 +1,5 @@
 import tornado.web
+import json
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
 
@@ -37,8 +38,14 @@ class InteractionHandler(WebSocketHandler):
     doc_clients[self.doc].remove(self.client)
 
 
+class DocsHandler(tornado.web.RequestHandler):
+  def get(self):
+    docs = {k:{"users": len(v)} for k,v in doc_clients.iteritems()}
+    self.write(json.dumps(docs))
+
 application = tornado.web.Application([
-  (r"/(.+)", InteractionHandler),
+  (r"/docs/(.+)", InteractionHandler),
+  (r"/docs", DocsHandler),
 ])
 
 
