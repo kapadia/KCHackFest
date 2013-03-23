@@ -10,18 +10,19 @@ exports.config =
     javascripts:
       joinTo:
         'javascripts/app.js': /^app/
-        'javascripts/vendor.js': /^vendor(\/|\\)scripts(\/|\\)(?!astro)/ 
-        'javascripts/astro.js': /^vendor(\/|\\)scripts(\/|\\)astro/
+        'javascripts/vendor.js': /^vendor\/scripts\/(?!(solar_system|astro))/
+        'javascripts/solar_system.js': /^vendor\/scripts\/solar_system/
+        'javascripts/astro_data.js': /^vendor\/scripts\/astro/
       order:
         # Files in `vendor` directories are compiled before other files
         # even if they aren't specified in order.
         before: [
-            'vendor/scripts/jquery.js'
-            'vendor/scripts/lodash.js'
-            'vendor/scripts/backbone.js'
-            ]
+          'vendor/scripts/common/jquery.js'
+          'vendor/scripts/common/lodash.js'
+          'vendor/scripts/common/backbone.js'
+          ]
         after: [
-          'vendor/scripts/solar_system.js'
+          'vendor/scripts/solar_system/solar_system.js'
           ]
 
     stylesheets:
