@@ -8,7 +8,7 @@ class Client:
     self.can_broadcast = True
     self.conn = conn
 
-  def send(msg):
+  def send(self, msg):
     self.conn.write_message(msg)
 
 # process-global set of per-document connected clients
@@ -29,6 +29,8 @@ class InteractionHandler(WebSocketHandler):
   def on_message(self, msg):
     if not self.client.can_broadcast:
       return
+
+    print msg
 
     for c in doc_clients[self.doc]:
       if c.conn is not self:
