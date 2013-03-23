@@ -6,8 +6,7 @@ module.exports = class AstroDataView extends View
   el: 'body.application'
   bands: ['g', 'r', 'i']
   sampleSpectra: 'http://astrojs.s3.amazonaws.com/sample/spec-0406-51869-0012.fits'
-  
-  # socket: new CSLESocket('astro_data', 'ws://localhost:8888')
+  socket: new CSLESocket('astro_data', 'ws://localhost:8888')
   
   events:
     'change input[data-type="q"]' : 'onQ'
@@ -54,12 +53,7 @@ module.exports = class AstroDataView extends View
     band = opts.band
     
     @webfits.loadImage(band, arr, width, height)
-    
-    # @socket.on('mouse-move', (data) =>
-    #   console.log(data)
-    #   webfits.xOffset = data.x
-    #   webfits.yOffset = data.y)
-    
+
     # Create color composite when all bands are received
     if @webfits.nImages is 3
       @webfits.setScales(1.0, 1.0, 1.0);
@@ -69,21 +63,22 @@ module.exports = class AstroDataView extends View
       @webfits.drawColor('i', 'g', 'r');
       window.webfits = @webfits
       
-      # Setup mouse callbacks for WebFITS
-      callbacks =
-        onmousedown: ->
-          console.log 'onmousedown'
-        onmouseup: ->
-          console.log 'onmouseup'
-        onmousemove: (x, y, opts) ->
-          console.log 'onmousemove'
-          # @socket.send('mouse-move', {x: x, y: y, opts: opts}))
-        onmouseout: ->
-          console.log 'onmouseout'
-        onmouseover: ->
-          console.log 'onmouseover'
+    # setup websocket event callbacks
+    @socket.on('mouse-move', (data) =>
+      webfits.xOffset = data.x
+      webfits.yOffset = data.y
+      webfits.draw()
+    )
 
-      @webfits.setupControls(callbacks)
+    # Setup mouse callbacks for webfits
+    callbacks =
+      onmousemove: =>
+        if webfits.drag
+          @socket.send 'mouse-move',
+            x: webfits.xOffset
+            y: webfits.yOffset
+
+    @webfits.setupControls(callbacks)
     
   getSpectra: (f) =>
     dataunit = f.getDataUnit()
