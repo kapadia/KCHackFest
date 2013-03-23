@@ -37,7 +37,6 @@ module.exports = class AstroDataView extends View
     dataunit.getFrameAsync(0, @createVisualization, opts)
 
   createVisualization: (arr, opts) =>
-    console.log arr, opts
     dataunit = opts.dataunit
     width = dataunit.width
     height = dataunit.height
