@@ -202,102 +202,86 @@ THREE.OrbitControls = function ( object, domElement ) {
 	}
 
 	function onMouseDown( event ) {
+	    if ( !scope.userRotate ) return;
 
-		if ( !scope.userRotate ) return;
+	    event.preventDefault();
 
-		event.preventDefault();
+	    if ( event.button === 0 || event.button === 2 ) {
+		state = STATE.ROTATE;
+		rotateStart.set( event.clientX, event.clientY );
+		conn.send("camera-rotate", {x: event.clientX, y: event.clientY})
+	    } else if ( event.button === 1 ) {
+		state = STATE.ZOOM;
+		zoomStart.set( event.clientX, event.clientY );
+		conn.send("camera-zoom", {x: event.clientX, y: event.clientY})
+	    }
 
-		if ( event.button === 0 || event.button === 2 ) {
-
-			state = STATE.ROTATE;
-
-			rotateStart.set( event.clientX, event.clientY );
-
-		} else if ( event.button === 1 ) {
-
-			state = STATE.ZOOM;
-
-			zoomStart.set( event.clientX, event.clientY );
-
-		}
-
-		document.addEventListener( 'mousemove', onMouseMove, false );
-		document.addEventListener( 'mouseup', onMouseUp, false );
-
+	    document.addEventListener( 'mousemove', onMouseMove, false );
+	    document.addEventListener( 'mouseup', onMouseUp, false );
 	}
 
-	function onMouseMove( event ) {
+        function handleMouseMove(x,y) {
+	    if ( state === STATE.ROTATE ) {
+		rotateEnd.set(x, y);
+		rotateDelta.subVectors( rotateEnd, rotateStart );
 
-		event.preventDefault();
+		scope.rotateLeft( 2 * Math.PI * rotateDelta.x / PIXELS_PER_ROUND * scope.userRotateSpeed );
+		scope.rotateUp( 2 * Math.PI * rotateDelta.y / PIXELS_PER_ROUND * scope.userRotateSpeed );
 
-		if ( state === STATE.ROTATE ) {
+		rotateStart.copy( rotateEnd );
+	    } else if ( state === STATE.ZOOM ) {
+		zoomEnd.set(x, y);
+		zoomDelta.subVectors( zoomEnd, zoomStart );
 
-			rotateEnd.set( event.clientX, event.clientY );
-			rotateDelta.subVectors( rotateEnd, rotateStart );
-
-			scope.rotateLeft( 2 * Math.PI * rotateDelta.x / PIXELS_PER_ROUND * scope.userRotateSpeed );
-			scope.rotateUp( 2 * Math.PI * rotateDelta.y / PIXELS_PER_ROUND * scope.userRotateSpeed );
-
-			rotateStart.copy( rotateEnd );
-
-		} else if ( state === STATE.ZOOM ) {
-
-			zoomEnd.set( event.clientX, event.clientY );
-			zoomDelta.subVectors( zoomEnd, zoomStart );
-
-			if ( zoomDelta.y > 0 ) {
-
-				scope.zoomIn();
-
-			} else {
-
-				scope.zoomOut();
-
-			}
-
-			zoomStart.copy( zoomEnd );
-
+		if ( zoomDelta.y > 0 ) {
+		    scope.zoomIn();
+		} else {
+		    scope.zoomOut();
 		}
 
+		zoomStart.copy( zoomEnd );
+	    }
+       }
+
+	function onMouseMove( event ) {
+	    event.preventDefault();
+	    conn.send('mouse-move', {x: event.clientX, y: event.clientY})
+	    handleMouseMove(event.clientX, event.clientY)
 	}
 
 	function onMouseUp( event ) {
+	    if ( ! scope.userRotate ) return;
 
-		if ( ! scope.userRotate ) return;
+	    document.removeEventListener( 'mousemove', onMouseMove, false );
+	    document.removeEventListener( 'mouseup', onMouseUp, false );
 
-		document.removeEventListener( 'mousemove', onMouseMove, false );
-		document.removeEventListener( 'mouseup', onMouseUp, false );
+	    state = STATE.NONE;
 
-		state = STATE.NONE;
-
+	    conn.send('mouse-up', {x: event.clientX, y: event.clientY})
 	}
 
-	function onMouseWheel( event ) {
+        function handleMouseWheel(delta) {
+	    if ( delta > 0 ) {
+		scope.zoomOut();
+	    } else {
+		scope.zoomIn();
+	    }
+	}
 
-		if ( ! scope.userZoom ) return;
+	function onMouseWheel(event) {
+	    if ( ! scope.userZoom ) return;
 
-		var delta = 0;
+	    var delta = 0;
 
-		if ( event.wheelDelta ) { // WebKit / Opera / Explorer 9
+	    if (event.wheelDelta) { // WebKit / Opera / Explorer 9
+		delta = event.wheelDelta;
+	    } else if ( event.detail ) { // Firefox
+		delta = - event.detail;
+	    }
 
-			delta = event.wheelDelta;
+	    handleMouseWheel(delta)
 
-		} else if ( event.detail ) { // Firefox
-
-			delta = - event.detail;
-
-		}
-
-		if ( delta > 0 ) {
-
-			scope.zoomOut();
-
-		} else {
-
-			scope.zoomIn();
-
-		}
-
+	    conn.send('mouse-wheel', {delta: delta})
 	}
 
 	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
@@ -305,6 +289,23 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
 	this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
 
+    	conn.on('camera-rotate', function(data){
+	    state = STATE.ROTATE;
+	    rotateStart.set(data.x, data.y);
+	})
+        conn.on('camera-zoom', function(data) {
+	    state = STATE.ZOOM;
+	    zoomStart.set(data.x, data.y);
+        })
+        conn.on('mouse-wheel', function(data) {
+   	    handleMouseWheel(data.delta)
+        })
+        conn.on('mouse-move', function(data) {
+	    handleMouseMove(data.x, data.y)
+	})
+        conn.on('mouse-up', function(data) {
+	    state = STATE.NONE
+	})
 };
 /**
  * @author Tim Knip / http://www.floorplanner.com/ / tim at floorplanner.com
@@ -6266,7 +6267,7 @@ function makeSolarSystem(){
 };var camPosition = function( position, target, time, is_client ){
 	this.tween = function(){
         if (!is_client) {
-            conn.send('camera-change', {position: position, target: target, time: time});
+            conn.send('preset-camera-select', {position: position, target: target, time: time});
         }
 
 		TWEEN.removeAll();
@@ -6384,6 +6385,12 @@ $(document).ready( function() {
 } );
 
 function init() {
+        // sockets
+        if ('WebSocket' in window){
+    	    conn = new CSLESocket('solar_system', 'ws://localhost:8888')
+        } else {
+            console.log("websocket don't work!!");
+        }
 
 	/********************************
 		SCENE SETUP
@@ -6430,23 +6437,16 @@ function init() {
 
 	setupScene();
 
-    // sockets
-    if ('WebSocket' in window){
-	conn = new CSLESocket('solar_system', 'ws://localhost:8888')
-	conn.on('camera-change', function(data) {
-	    console.log(data)
-	    camX = new camPosition( data.position, data.target, data.time, true );
-            camX.tween();
-	})
-    } else {
-        console.log("websocket don't work!!");
-    }
-
 	camOne = new camPosition( { x: 0, y: 50, z: 500 }, { x: 0, y: 0, z: 0 }, 1500, false );
 	camTwo = new camPosition( { x: 0, y: 12000, z: 500 }, { x: 0, y: 0, z: 0 }, 5000, false );
 	camThree = new camPosition( { x: -500, y: 250, z: -1000 }, { x: 0, y: 0, z: 0 }, 3000, false );
 	camEarth = new camPosition( { x: 50, y: 50, z: 250 }, ss[3].position, 1500, false );
 	camMars = new camPosition( { x: 75, y: 50, z: 300 }, ss[4].position, 1500, false );
+
+        conn.on('preset-camera-select', function(data) {
+	    camX = new camPosition( data.position, data.target, data.time, true );
+            camX.tween();
+	})
 
 	t = new timer();
 	t.count = 2456365;
