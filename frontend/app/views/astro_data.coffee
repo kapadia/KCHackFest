@@ -62,26 +62,26 @@ module.exports = class AstroDataView extends View
       @webfits.drawColor('i', 'g', 'r');
       
     # setup websocket event callbacks
-    @socket.on('mouse-move', (data) ->
-      webfits.xOffset = data.x
-      webfits.yOffset = data.y
-      webfits.draw()
+    @socket.on('mouse-move', (data) =>
+      @webfits.xOffset = data.x
+      @webfits.yOffset = data.y
+      @webfits.draw()
     )
-    @socket.on('zoom', (data) ->
-      webfits.zoom = data.z
-      webfits.draw()
+    @socket.on('zoom', (data) =>
+      @webfits.zoom = data.z
+      @webfits.draw()
     )
 
     # Setup mouse callbacks for webfits
     callbacks =
       onmousemove: =>
-        if webfits.drag
+        if @webfits.drag
           @socket.send 'mouse-move',
-            x: webfits.xOffset
-            y: webfits.yOffset
+            x: @webfits.xOffset
+            y: @webfits.yOffset
       onzoom: =>
         @socket.send 'zoom',
-          z: webfits.zoom
+          z: @webfits.zoom
 
     @webfits.setupControls(callbacks)
     
