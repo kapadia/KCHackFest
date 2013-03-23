@@ -7,7 +7,7 @@ module.exports = class AstroDataView extends View
   sampleImage: 'http://astrojs.s3.amazonaws.com/sample/m101.fits'
   sampleSpectra: 'http://astrojs.s3.amazonaws.com/sample/spec-0406-51869-0012.fits'
   
-  socket: new CSLESocket('astro_data', 'ws://localhost:8888')
+  # socket: new CSLESocket('astro_data', 'ws://localhost:8888')
 
   initialize: ->
     @once 'get-data', @getData
@@ -26,7 +26,6 @@ module.exports = class AstroDataView extends View
     new astro.FITS.File(@sampleSpectra, @getSpectra)
 
   getImage: (f) =>
-    console.log 'getImage'
     # Get the reference to data chunk from the file
     dataunit = f.getDataUnit()
 
@@ -47,19 +46,30 @@ module.exports = class AstroDataView extends View
     # Initialize visualization context
     el = document.querySelector('.astro_data')
     webfits = new astro.WebFITS(el, 400)
-    @socket.on('mouse-move', (data) =>
-      console.log(data)
-      webfits.xOffset = data.x
-      webfits.yOffset = data.y)
-    webfits.setupControls((x,y,opts) =>
-      @socket.send('mouse-move', {x: x, y: y, opts: opts}))
-    console.log width, height
+    # @socket.on('mouse-move', (data) =>
+    #   console.log(data)
+    #   webfits.xOffset = data.x
+    #   webfits.yOffset = data.y)
+    
+    # Setup mouse callbacks for webfits
+    callbacks =
+      onmousedown: ->
+        console.log 'onmousedown'
+      onmouseup: ->
+        console.log 'onmouseup'
+      onmousemove: (x, y, opts) ->
+        console.log 'onmousemove'
+        # @socket.send('mouse-move', {x: x, y: y, opts: opts}))
+      onmouseout: ->
+        console.log 'onmouseout'
+      onmouseover: ->
+        console.log 'onmouseover'
+    
+    webfits.setupControls(callbacks)
     webfits.loadImage('sample', arr, width, height)
     webfits.setExtent(extent[0], extent[1])
     
   getSpectra: (f) =>
-    console.log 'getSpectra'
-    
     dataunit = f.getDataUnit()
     
     opts = {}
