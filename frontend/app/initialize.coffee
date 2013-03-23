@@ -10,4 +10,4 @@ $ ->
   CSLE.Views.AppView = new AppView = require 'views/app_view'
 
   # Initialize Backbone History
-  Backbone.history.start pushState: yes
+  Backbone.history.start pushState: no
