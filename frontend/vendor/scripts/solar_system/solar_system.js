@@ -6209,16 +6209,15 @@ function planetsOrbit( time ){
 
 function setSolarSystemScale(){
 	if ( scaling ){
-		var sunS = 1392684 * ssScale.sunScale;
-		ss[0].scale.set( sunS, sunS, sunS );
+	    var sunS = 1392684 * ssScale.sunScale;
+	    ss[0].scale.set( sunS, sunS, sunS );
 
-		for ( var i = 1; i < ss.length; i ++ ) {
-			var planetS = ephemeris[i].size * ssScale.planetScale;
-			ss[i].scale.set( planetS, planetS, planetS );
-			// ss[i].orbit.scale.set( ssScale.s, ssScale.s, ssScale.s );
+	    for ( var i = 1; i < ss.length; i ++ ) {
+		var planetS = ephemeris[i].size * ssScale.planetScale;
+		ss[i].scale.set( planetS, planetS, planetS );
+		// ss[i].orbit.scale.set( ssScale.s, ssScale.s, ssScale.s );
 	    }
-	scaling = false;
-
+	    scaling = false;
 	}
 }
 
@@ -6357,6 +6356,12 @@ function setLoadMessage( msg ){
 }
 
 $(document).ready( function() {
+        // sockets
+        if ('WebSocket' in window){
+    	    conn = new CSLESocket('solar_system', 'ws://localhost:8888')
+        } else {
+            console.log("websocket don't work!!");
+        }
 
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
@@ -6385,13 +6390,6 @@ $(document).ready( function() {
 } );
 
 function init() {
-        // sockets
-        if ('WebSocket' in window){
-    	    conn = new CSLESocket('solar_system', 'ws://localhost:8888')
-        } else {
-            console.log("websocket don't work!!");
-        }
-
 	/********************************
 		SCENE SETUP
 	********************************/
@@ -6471,23 +6469,46 @@ function init() {
 function buildGUI(){
 
 	var gui = new dat.GUI();
-	gui.add( t, 'multiplier', 0, 5).name( 'Orbit Speed' );
+	var mult = gui.add( t, 'multiplier', 0, 5)
+	              .name( 'Orbit Speed' )
+                      .onChange(function(val) {
+			  conn.send('multiplier-change', {val: val})
+		      })
 
-	gui.add(ssScale, 's', 1, 100 )
-		.name('SS Scale')
-		.onChange( function(){
+        conn.on('multiplier-change', function(data) {
+	    t['multiplier'] = data.val
+	    mult.object['multiplier'] = data.val
+	    mult.updateDisplay()
+	})
+
+        var scales = []
+	scales.push(gui.add(ssScale, 's', 1, 100 )
+		    .name('SS Scale')
+		    .onChange(function(val){
 			scaling = true;
-		});
-	gui.add(ssScale, 'sunScale', .00001, .00002 )
-		.name('Sun Scale')
-		.onChange( function(){
+			conn.send('ssScale-change', {property: 's', val: val})
+		    }));
+        scales.push(gui.add(ssScale, 'sunScale', .00001, .00002 )
+		    .name('Sun Scale')
+		    .onChange(function(val){
 			scaling = true;
-		});
-	gui.add(ssScale, 'planetScale', .0001, .001 )
-		.name('Planet Scale')
-		.onChange( function(){
+			conn.send('ssScale-change', {property: 'sunScale', val: val})
+		    }));
+        scales.push(gui.add(ssScale, 'planetScale', .0001, .001 )
+		    .name('Planet Scale')
+		    .onChange(function(val){
 			scaling = true;
-		});
+			conn.send('ssScale-change', {property: 'planetScale', val: val})
+		    }));
+
+        conn.on('ssScale-change', function(data) {
+	    ssScale[data.property] = data.val
+	    scaling = true
+	    for(var i in scales) {
+		scales[i].object[data.property] = data.val
+		scales[i].updateDisplay()
+	    }
+	})
 
 	var camFolder = gui.addFolder( 'Camera Positions' );
 	camFolder.open();
