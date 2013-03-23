@@ -6471,32 +6471,32 @@ function buildGUI(){
 	var gui = new dat.GUI();
 	gui.add( t, 'multiplier', 0, 5).name( 'Orbit Speed' );
 
-	gui.add(ssScale, 's', 1, 100 )
-		.name('SS Scale')
-		.onChange( function(){
-		    conn.send('ssScale-change', {ssScale: ssScale})
-		    scaling = true;
-		});
-	gui.add(ssScale, 'sunScale', .00001, .00002 )
-		.name('Sun Scale')
-		.onChange( function(){
-		    conn.send('ssScale-change', {ssScale: ssScale})
-		    scaling = true;
-		});
-	gui.add(ssScale, 'planetScale', .0001, .001 )
-		.name('Planet Scale')
-		.onChange( function(){
-		    conn.send('ssScale-change', {ssScale: ssScale})
-		    scaling = true;
-		});
+        var scales = []
+	scales.push(gui.add(ssScale, 's', 1, 100 )
+		    .name('SS Scale')
+		    .onChange(function(val){
+			scaling = true;
+			conn.send('ssScale-change', {property: 's', val: val})
+		    }));
+        scales.push(gui.add(ssScale, 'sunScale', .00001, .00002 )
+		    .name('Sun Scale')
+		    .onChange(function(val){
+			scaling = true;
+			conn.send('ssScale-change', {property: 'sunScale', val: val})
+		    }));
+        scales.push(gui.add(ssScale, 'planetScale', .0001, .001 )
+		    .name('Planet Scale')
+		    .onChange(function(val){
+			scaling = true;
+			conn.send('ssScale-change', {property: 'planetScale', val: val})
+		    }));
 
         conn.on('ssScale-change', function(data) {
-	    ssScale = data.ssScale
+	    ssScale[data.property] = data.val
 	    scaling = true
-	    for (var i in gui.__controllers) {
-		console.log(i)
-		console.log(gui.__controllers[i])
-		gui.__controllers[i].updateDisplay();
+	    for(var i in scales) {
+		scales[i].object[data.property] = data.val
+		scales[i].updateDisplay()
 	    }
 	})
 
