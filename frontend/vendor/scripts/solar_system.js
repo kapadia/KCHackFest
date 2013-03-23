@@ -5854,8 +5854,10 @@ var ephemeris = [
 		om: [ 131.78635853, -0.00606302  ],
 		aphelion: 4537039826
 	}	
-]function updateLabels(){
-    for (var i in ss ) {
+]
+
+function updateLabels(){
+    for (var i in ss) {
         var label = ss[i].label;
         label.update();
     }
