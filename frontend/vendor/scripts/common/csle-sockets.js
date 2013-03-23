@@ -9,7 +9,8 @@
     }
 
     this.CSLESocket.prototype.send = function(event, data) {
-	this.ws.send(JSON.stringify({event: event, data: data}))
+	if(this.ws.readyState == 1)
+	    this.ws.send(JSON.stringify({event: event, data: data}))
     }
 
     this.CSLESocket.prototype.on = function(event, fun) {
