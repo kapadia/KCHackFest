@@ -64,9 +64,13 @@ module.exports = class AstroDataView extends View
       window.webfits = @webfits
       
     # setup websocket event callbacks
-    @socket.on('mouse-move', (data) =>
+    @socket.on('mouse-move', (data) ->
       webfits.xOffset = data.x
       webfits.yOffset = data.y
+      webfits.draw()
+    )
+    @socket.on('zoom', (data) ->
+      webfits.zoom = data.z
       webfits.draw()
     )
 
@@ -77,6 +81,9 @@ module.exports = class AstroDataView extends View
           @socket.send 'mouse-move',
             x: webfits.xOffset
             y: webfits.yOffset
+      onzoom: =>
+        @socket.send 'zoom',
+          z: webfits.zoom
 
     @webfits.setupControls(callbacks)
     
