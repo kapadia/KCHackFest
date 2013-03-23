@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title>three.js canvas - geometry - earth</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+		<script src="./js/libs/jquery-1.9.1.min.js"></script>
+		<script src="./js/libs/three.min.js"></script>
+		<script src="./js/libs/Detector.js"></script>
+		<script src="./js/libs/stats.min.js"></script>
+		<script src="./js/libs/tween.min.js"></script>
+		<script src="./js/libs/dat.gui.min.js"></script>
+		<script src="./js/libs/underscore.min.js"></script>
+
+		<script src="./js/controls/OrbitControls.js"></script>	
+		<script src="./js/loaders/ColladaLoader.js"></script>
+
+		<script src="./js/utils.js"></script>
+		<script src="./js/daycount.js"></script>
+		<script src="./js/ruler.js"></script>
+		<script src="./js/shaderlist.js"></script>
+		<script src="./js/ephemeris.js"></script>
+		<script src="./js/label.js"></script>
+		<script src="./js/lensflare.js"></script>
+		<script src="./js/orbit.js"></script>
+		<script src="./js/planet.js"></script>
+		<script src="./js/sun.js"></script>
+		<script src="./js/solarsystem.js"></script>
+		<script src="./js/camtweener.js"></script>
+		<script src="./js/main.js"></script>
+		<script src="./js/stars.js"></script>
+		<script src="./js/trajectory.js"></script>
+
+		<script src="./js/addlensflare.js"></script>
+
+		<style>
+			body {
+				color: #808080;
+				font-family: Garamond, serif;
+				font-size:13px;
+				text-align:center;
+
+				background-color: #000000;
+				margin: 0px;
+				padding: 0px;
+				overflow: hidden;
+			}
+
+	        canvas
+	        {
+	            pointer-events: none;
+	            z-index: 10;
+	        }
+
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				padding: 5px;
+			}
+			#loadtext{
+				position: absolute;
+				top: 100px; width: 100%;
+				font-size: 20px;
+			}
+
+			#speedSlider {
+				width: 50%;
+			}
+
+			.center	{
+				margin-left:auto;
+				margin-right:auto;
+				width:70%;
+				background-color:#b0e0e6;
+			}
+	        
+	        #container
+	        {
+	            background: #000;
+	            width: 100%;
+	            height: 100%;
+	            margin: 0 auto;
+	            overflow: hidden;
+	        }
+
+	        #label_template{
+	        	display: 'inline-block';
+	        }
+	        
+
+			.label {
+				font-family: monospace;
+				-moz-user-select:none;
+				-khtml-user-select:none;
+				-webkit-user-select:none;
+				-ms-user-select:none;
+				position:absolute;
+				min-width: 0px;
+				-webkit-transition:opacity .5s;
+				-moz-transition:opacity .5s;
+				-ms-transition:opacity .5s;
+				-o-transition:opacity .5s;
+				transition:opacity .5s;
+				display:inline;
+	            opacity: .75;
+	
+			}
+
+			.label span.name {
+				display: inline-block;
+				width: 100%;
+				color: #fff;
+				text-shadow:.1em .1em 4px #000;
+				-webkit-transition:text-shadow .25s;
+				-moz-transition:text-shadow .25s;
+				-ms-transition:text-shadow .25s;
+				-o-transition:text-shadow .25s;
+				transition:text-shadow .25s;
+				text-align:left;
+				margin-left:auto;
+				margin-right:auto;
+				padding: 0px 0px;
+			}
+
+			.label span.name:hover {
+				text-shadow:0 0 3px #fff, 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #fff;
+			}
+
+		</style>
+	</head>
+
+	<body>
+
+	<div style="display:none">
+		<span id="label_template" class="label">
+			<span class="name">
+			</span>
+		</span>
+	</div>
+	<div id="loadtext"></div>
+    <div id="container"></div>
+	<div id="info">MARS-DOE Solar System</div>
+
+	</body>
+</html>

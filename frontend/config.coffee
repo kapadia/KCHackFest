@@ -20,7 +20,10 @@ exports.config =
             'vendor/scripts/jquery.js'
             'vendor/scripts/lodash.js'
             'vendor/scripts/backbone.js'
-        ]
+            ]
+        after: [
+          'vendor/scripts/solar_system.js'
+          ]
 
     stylesheets:
       joinTo: 'stylesheets/app.css'
