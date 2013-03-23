@@ -60,6 +60,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	var changeEvent = { type: 'change' };
 
 
+
 	this.rotateLeft = function ( angle ) {
 
 		if ( angle === undefined ) {
@@ -5004,7 +5005,7 @@ daycount.counts.badi = (function() {
     this.isLeapYear = parseInt(arg && arg.isLeapYear);
     var intercalaryStart = 336;
     var intercalaryEnd = 336 + (this.isLeapYear ? 6 : 5);
-    this.isIntercalary = intercalaryStart <= this.dayOfYear
+    this.isIntercalary = intercalaryStart <= this.dayOfYear 
                       && this.dayOfYear < intercalaryEnd;
     this.month = this.isIntercalary ? NaN
       : (this.dayOfYear >= intercalaryEnd) ? 19
@@ -5617,7 +5618,7 @@ var Ruler = function( p1, p2 ){
 		p2vec2.y = ruler.p1.scale.y + offset;
 	}else{
 		p1vec2.y = ruler.p2.scale.y + offset;
-		p2vec2.y = ruler.p2.scale.y + offset;
+		p2vec2.y = ruler.p2.scale.y + offset;		
 	}
 
 	var p1Geo = new THREE.Geometry();
@@ -5634,7 +5635,7 @@ var Ruler = function( p1, p2 ){
 	rulerGeo.vertices.push( p2vec2 );
 
 	material = new THREE.LineBasicMaterial( { color: 0x2BBFBD, opacity: 0.25, linewidth: 1 } );
-
+	
 	ruler.p1Line = new THREE.Line( p1Geo, new THREE.LineBasicMaterial( { color: 0x2BBFBD, opacity: 0.25, linewidth: 1 } ) );
 	ruler.p2Line = new THREE.Line( p2Geo, new THREE.LineBasicMaterial( { color: 0x2BBFBD, opacity: 0.25, linewidth: 1 } ) );
 	ruler.rulerLine = new THREE.Line( rulerGeo, new THREE.LineBasicMaterial( { color: 0x2BBFBD, opacity: 0.25, linewidth: 1 } ) );
@@ -5657,7 +5658,7 @@ var Ruler = function( p1, p2 ){
 
 		this.rulerLine.geometry.vertices[0] = p1Vec;
 		this.rulerLine.geometry.vertices[1] = p2Vec;
-
+		
 		this.p1Line.position = this.p1.position;
 		this.p2Line.position = this.p2.position;
 
@@ -5700,53 +5701,53 @@ function loadShaders(list, callback) {
     }
 }
 // 		JDCT    Epoch Julian Date, Coordinate Time
-//       EC     Eccentricity, e
-//       QR     Periapsis distance, q (AU)
-//       IN     Inclination w.r.t xy-plane, i (degrees)
-//       OM     Longitude of Ascending Node, OMEGA, (degrees)
-//       W      Argument of Perifocus, w (degrees)
-//       Tp     Time of periapsis (Julian day number)
-//       N      Mean motion, n (degrees/day)
-//       MA     Mean anomaly, M (degrees)
-//       TA     True anomaly, nu (degrees)
-//       A      Semi-major axis, a (AU)
-//       AD     Apoapsis distance (AU)
-//       PR     Sidereal orbit period (day)
+//       EC     Eccentricity, e                                                   
+//       QR     Periapsis distance, q (AU)                                        
+//       IN     Inclination w.r.t xy-plane, i (degrees)                           
+//       OM     Longitude of Ascending Node, OMEGA, (degrees)                     
+//       W      Argument of Perifocus, w (degrees)                                
+//       Tp     Time of periapsis (Julian day number)                             
+//       N      Mean motion, n (degrees/day)                                      
+//       MA     Mean anomaly, M (degrees)                                         
+//       TA     True anomaly, nu (degrees)                                        
+//       A      Semi-major axis, a (AU)                                           
+//       AD     Apoapsis distance (AU)                                            
+//       PR     Sidereal orbit period (day) 
 var planet_init_list = [
 	{ planetName:"Sol", color:0xfff5ec, width: 50, planetOrder:0, satelliteOf:"-1", scale_mult:"1 1 1", orbit_calc_method:"star", dist_from_parent:0, orbit_sidereal_in_days:0, diameter_km:1392000, diameter_sqrtln:7.072, obliquity:0, rotation_sidereal_in_days:0, a_semimajor_axis:0, e_eccentricity:0, i_inclination:0, O_perihelion:0, w_ecliptic_long:0, L_mean_anomaly:0, a_per_cy:0, e_per_cy:0, i_per_cy:0, O_per_cy:0, w_per_cy:0, L_per_cy:0},
-	{ planetName:"Mercury", color:0xf37e1a, width: 10, planetOrder:1, satelliteOf:"Sol", scale_mult:"1 1 1", orbit_calc_method:"major_planet", dist_from_parent:57900000, orbit_sidereal_in_days:88, rotation_sidereal_in_days:58.6467, diameter_km:4879, diameter_sqrtln:4.246, obliquity:0.01,  a_semimajor_axis:0.38709893, e_eccentricity:0.20563069, i_inclination:7.00487, O_ecliptic_long:48.33167, w_perihelion:77.45645, L_mean_longitude:252.25084, a_per_cy:0.00000066, e_per_cy:0.00002527, i_per_cy:-23.51, O_per_cy:-446.30, w_per_cy:573.57, L_per_cy:538101628.29},
-	{ planetName:"Venus", color:0xe07749, width: 10, planetOrder:2, satelliteOf:"Sol", scale_mult:"1 1 1", orbit_calc_method:"major_planet", dist_from_parent:108200000, orbit_sidereal_in_days:225, rotation_sidereal_in_days:-243.02, diameter_km:12104, diameter_sqrtln:4.701, obliquity:177.4, a_semimajor_axis:0.72333199, e_eccentricity:0.00677323, i_inclination:3.39471, O_ecliptic_long:76.68069, w_perihelion:131.53298, L_mean_longitude:181.97973, a_per_cy:0.00000092, e_per_cy:-0.00004938, i_per_cy:-2.86, O_per_cy:-996.89, w_per_cy:-108.80, L_per_cy:210664136.06},
-	{ planetName:"Earth",
-		color: 0x345374,
-		width: 10,
-		planetOrder: 3,
-		satelliteOf: "Sol",
-		scale_mult: "1 1 1",
-		orbit_calc_method: "major_planet",
-		dist_from_parent: 149600000,
-		orbit_sidereal_in_days: 365.26,
-		rotation_sidereal_in_days: 1,
-		diameter_km: 12756,
-		diameter_sqrtln: 4.727,
-		obliquity: 23.439,
-		a_semimajor_axis: 1.00000011,
-		e_eccentricity: 0.01671022,
-		i_inclination: 0.00005,
-		O_ecliptic_long: -11.26064,
-		w_perihelion: 102.94719,
-		L_mean_longitude: 100.46435,
-		a_per_cy: -0.00000005,
-		e_per_cy: -0.00003804,
-		i_per_cy: -46.94,
-		O_per_cy: -18228.25,
-		w_per_cy: 1198.28,
+	{ planetName:"Mercury", color:0xf37e1a, width: 10, planetOrder:1, satelliteOf:"Sol", scale_mult:"1 1 1", orbit_calc_method:"major_planet", dist_from_parent:57900000, orbit_sidereal_in_days:88, rotation_sidereal_in_days:58.6467, diameter_km:4879, diameter_sqrtln:4.246, obliquity:0.01,  a_semimajor_axis:0.38709893, e_eccentricity:0.20563069, i_inclination:7.00487, O_ecliptic_long:48.33167, w_perihelion:77.45645, L_mean_longitude:252.25084, a_per_cy:0.00000066, e_per_cy:0.00002527, i_per_cy:-23.51, O_per_cy:-446.30, w_per_cy:573.57, L_per_cy:538101628.29}, 
+	{ planetName:"Venus", color:0xe07749, width: 10, planetOrder:2, satelliteOf:"Sol", scale_mult:"1 1 1", orbit_calc_method:"major_planet", dist_from_parent:108200000, orbit_sidereal_in_days:225, rotation_sidereal_in_days:-243.02, diameter_km:12104, diameter_sqrtln:4.701, obliquity:177.4, a_semimajor_axis:0.72333199, e_eccentricity:0.00677323, i_inclination:3.39471, O_ecliptic_long:76.68069, w_perihelion:131.53298, L_mean_longitude:181.97973, a_per_cy:0.00000092, e_per_cy:-0.00004938, i_per_cy:-2.86, O_per_cy:-996.89, w_per_cy:-108.80, L_per_cy:210664136.06}, 
+	{ planetName:"Earth", 
+		color: 0x345374, 
+		width: 10, 
+		planetOrder: 3, 
+		satelliteOf: "Sol", 
+		scale_mult: "1 1 1", 
+		orbit_calc_method: "major_planet", 
+		dist_from_parent: 149600000, 
+		orbit_sidereal_in_days: 365.26, 
+		rotation_sidereal_in_days: 1, 
+		diameter_km: 12756, 
+		diameter_sqrtln: 4.727, 
+		obliquity: 23.439, 
+		a_semimajor_axis: 1.00000011, 
+		e_eccentricity: 0.01671022, 
+		i_inclination: 0.00005, 
+		O_ecliptic_long: -11.26064, 
+		w_perihelion: 102.94719, 
+		L_mean_longitude: 100.46435, 
+		a_per_cy: -0.00000005, 
+		e_per_cy: -0.00003804, 
+		i_per_cy: -46.94, 
+		O_per_cy: -18228.25, 
+		w_per_cy: 1198.28, 
 		L_per_cy: 129597740.63
-	},
-	{ planetName:"Mars", color:0xae763e, width: 10, planetOrder:4, satelliteOf:"Sol", scale_mult:"1 1 1",orbit_calc_method:"major_planet", dist_from_parent:227900000, orbit_sidereal_in_days:693.99, rotation_sidereal_in_days:24.62326, diameter_km:6794, diameter_sqrtln:4.412, obliquity:1.5424, a_semimajor_axis:1.52366231, e_eccentricity:0.09341233, i_inclination:1.85061, O_ecliptic_long:49.57854, w_perihelion:336.04084, L_mean_longitude:355.45332, a_per_cy:-0.00007221, e_per_cy:0.00011902, i_per_cy:-25.47, O_per_cy:-1020.19, w_per_cy:1560.78, L_per_cy:68905103.78},
-	{ planetName:"Jupiter", color:0xf28951, width: 10, planetOrder:5, satelliteOf:"Sol", scale_mult:"1 1 0.92", orbit_calc_method:"major_planet", dist_from_parent:778400000, orbit_sidereal_in_days:4346.59, rotation_sidereal_in_days:0.38451, diameter_km:142984, diameter_sqrtln:5.935, obliquity:3.13, a_semimajor_axis:5.20336301, e_eccentricity:0.04839266, i_inclination:1.30530, O_ecliptic_long:100.55615, w_perihelion:14.75385, L_mean_longitude:34.40438, a_per_cy:0.00060737, e_per_cy:-0.00012880, i_per_cy:-4.15, O_per_cy:1217.17, w_per_cy:839.93, L_per_cy:10925078.35},
-	{ planetName:"Saturn", color:0xdeb078, width: 10, planetOrder:6, satelliteOf:"Sol", scale_mult:"1 1 1", orbit_calc_method:"major_planet", dist_from_parent:1400000000, orbit_sidereal_in_days:10775.17, rotation_sidereal_in_days:0.43929, diameter_km:120536, diameter_sqrtln:5.85, obliquity:26.73, a_semimajor_axis:9.53707032, e_eccentricity:0.05415060, i_inclination:2.48446, O_ecliptic_long:113.71504, w_perihelion:92.43194, L_mean_longitude:49.94432, a_per_cy:-0.00301530, e_per_cy:-0.00036762, i_per_cy:6.11, O_per_cy:-1591.05, w_per_cy:-1948.89, L_per_cy:4401052.95},
-	{ planetName:"Uranus", color:0x9cb8c3, width: 10, planetOrder:7, satelliteOf:"Sol", scale_mult:"1 1 1", orbit_calc_method:"major_planet", dist_from_parent:2870000000, orbit_sidereal_in_days:30681.84, rotation_sidereal_in_days:-0.7183333, diameter_km:51118, diameter_sqrtln:5.421, obliquity:97.77, a_semimajor_axis:19.19126393, e_eccentricity:0.04716771, i_inclination:0.76986, O_ecliptic_long:74.22988, w_perihelion:170.96424, L_mean_longitude:313.23218, a_per_cy:0.00152025, e_per_cy:-0.00019150, i_per_cy:-2.09, O_per_cy:-1681.40, w_per_cy:1312.56, L_per_cy:1542547.79},
-	{ planetName:"Neptune", color:0x6086e5, width: 10, planetOrder:8, satelliteOf:"Sol", scale_mult:"1 1 1", orbit_calc_method:"major_planet", dist_from_parent:4500000000, orbit_sidereal_in_days:60194.85, rotation_sidereal_in_days:0.67125, diameter_km:49528, diameter_sqrtln:5.405, obliquity:28.32, a_semimajor_axis:30.06896348, e_eccentricity:0.00858587, i_inclination:1.76917, O_ecliptic_long:131.72169, w_perihelion:44.97135, L_mean_longitude:304.88003, a_per_cy:-0.00125196, e_per_cy:0.00002510, i_per_cy:-3.64, O_per_cy:-151.25, w_per_cy:-844.43, L_per_cy:786449.21},
+	}, 
+	{ planetName:"Mars", color:0xae763e, width: 10, planetOrder:4, satelliteOf:"Sol", scale_mult:"1 1 1",orbit_calc_method:"major_planet", dist_from_parent:227900000, orbit_sidereal_in_days:693.99, rotation_sidereal_in_days:24.62326, diameter_km:6794, diameter_sqrtln:4.412, obliquity:1.5424, a_semimajor_axis:1.52366231, e_eccentricity:0.09341233, i_inclination:1.85061, O_ecliptic_long:49.57854, w_perihelion:336.04084, L_mean_longitude:355.45332, a_per_cy:-0.00007221, e_per_cy:0.00011902, i_per_cy:-25.47, O_per_cy:-1020.19, w_per_cy:1560.78, L_per_cy:68905103.78}, 
+	{ planetName:"Jupiter", color:0xf28951, width: 10, planetOrder:5, satelliteOf:"Sol", scale_mult:"1 1 0.92", orbit_calc_method:"major_planet", dist_from_parent:778400000, orbit_sidereal_in_days:4346.59, rotation_sidereal_in_days:0.38451, diameter_km:142984, diameter_sqrtln:5.935, obliquity:3.13, a_semimajor_axis:5.20336301, e_eccentricity:0.04839266, i_inclination:1.30530, O_ecliptic_long:100.55615, w_perihelion:14.75385, L_mean_longitude:34.40438, a_per_cy:0.00060737, e_per_cy:-0.00012880, i_per_cy:-4.15, O_per_cy:1217.17, w_per_cy:839.93, L_per_cy:10925078.35}, 
+	{ planetName:"Saturn", color:0xdeb078, width: 10, planetOrder:6, satelliteOf:"Sol", scale_mult:"1 1 1", orbit_calc_method:"major_planet", dist_from_parent:1400000000, orbit_sidereal_in_days:10775.17, rotation_sidereal_in_days:0.43929, diameter_km:120536, diameter_sqrtln:5.85, obliquity:26.73, a_semimajor_axis:9.53707032, e_eccentricity:0.05415060, i_inclination:2.48446, O_ecliptic_long:113.71504, w_perihelion:92.43194, L_mean_longitude:49.94432, a_per_cy:-0.00301530, e_per_cy:-0.00036762, i_per_cy:6.11, O_per_cy:-1591.05, w_per_cy:-1948.89, L_per_cy:4401052.95}, 
+	{ planetName:"Uranus", color:0x9cb8c3, width: 10, planetOrder:7, satelliteOf:"Sol", scale_mult:"1 1 1", orbit_calc_method:"major_planet", dist_from_parent:2870000000, orbit_sidereal_in_days:30681.84, rotation_sidereal_in_days:-0.7183333, diameter_km:51118, diameter_sqrtln:5.421, obliquity:97.77, a_semimajor_axis:19.19126393, e_eccentricity:0.04716771, i_inclination:0.76986, O_ecliptic_long:74.22988, w_perihelion:170.96424, L_mean_longitude:313.23218, a_per_cy:0.00152025, e_per_cy:-0.00019150, i_per_cy:-2.09, O_per_cy:-1681.40, w_per_cy:1312.56, L_per_cy:1542547.79}, 
+	{ planetName:"Neptune", color:0x6086e5, width: 10, planetOrder:8, satelliteOf:"Sol", scale_mult:"1 1 1", orbit_calc_method:"major_planet", dist_from_parent:4500000000, orbit_sidereal_in_days:60194.85, rotation_sidereal_in_days:0.67125, diameter_km:49528, diameter_sqrtln:5.405, obliquity:28.32, a_semimajor_axis:30.06896348, e_eccentricity:0.00858587, i_inclination:1.76917, O_ecliptic_long:131.72169, w_perihelion:44.97135, L_mean_longitude:304.88003, a_per_cy:-0.00125196, e_per_cy:0.00002510, i_per_cy:-3.64, O_per_cy:-151.25, w_per_cy:-844.43, L_per_cy:786449.21}, 
 	{ planetName:"Pluto", color:0x9fa9b2, width: 10, planetOrder:9, satelliteOf:"Sol", scale_mult:"1 1 1", orbit_calc_method:"major_planet", dist_from_parent:5900000000, orbit_sidereal_in_days:90767.11, rotation_sidereal_in_days:-0.2564537, diameter_km:2302, diameter_sqrtln:3.871, obliquity:119.61, a_semimajor_axis:39.48168677, e_eccentricity:0.24880766, i_inclination:17.14175, O_ecliptic_long:110.30347, w_perihelion:224.06676, L_mean_longitude:238.92881, a_per_cy:-0.00076912, e_per_cy:0.00006465, i_per_cy:11.07, O_per_cy:-37.33, w_per_cy:-132.25, L_per_cy:522747.90},
 
 	{ planetName:"Luna", color:0xa6a6a6, width: 10, planetOrder:1, satelliteOf:"Earth", shapeName:"art/shapes/planets/luna.dts", scale_mult:"1 1 1", orbit_calc_method:"luna", orbit_sidereal_in_days:27.39677, rotation_sidereal_in_days:1.13841, diameter_km:3476, obliquity:6.68, DB:"PlanetDBLuna", N_long_asc:125.1228, i_inclination:5.1454, w_arg_perigee:318.0634, a_mean_dist:0.00384399, e_eccentricity:0.054900, M_mean_anomaly:115.3654, N_per_cy:-0.0529538083, w_per_cy:0.1643573223, m_per_cy:13.0649929509 }
@@ -5785,7 +5786,7 @@ var ephemeris = [
 		name: 'Earth',
 		texture: './images/solarsystem/earthmap2.jpg',
 		size: 6371.00,
-		period: 365.25636,
+		period: 365.25636,               
 		a: [ 1.00000018, -0.00000003 ],
 		e: [ 0.01673163, -0.00003661 ],
 		I: [ -0.00054346, -0.01337178 ],
@@ -5821,7 +5822,7 @@ var ephemeris = [
 		name: 'Saturn',
 		texture: './images/solarsystem/saturnmap.jpg',
 		size: 58232,
-		period: 10755.699,
+		period: 10755.699,             
 		a: [ 9.54149883, -0.00003065 ],
 		e: [ 0.05550825, -0.00032044 ],
 		I: [ 2.49424102, 0.00451969  ],
@@ -5833,7 +5834,7 @@ var ephemeris = [
 		name: 'Uranus',
 		texture: './images/solarsystem/uranusmap.jpg',
 		size: 30687.153,
-		period: 30700,
+		period: 30700,                  
 		a: [ 19.18797948, -0.00020455 ],
 		e: [ 0.04685740, -0.00001550 ],
 		I: [ 0.77298127, -0.00180155  ],
@@ -5853,15 +5854,14 @@ var ephemeris = [
 		wBar: [ 46.68158724, 0.01009938 ],
 		om: [ 131.78635853, -0.00606302  ],
 		aphelion: 4537039826
-	}
-]
-
+	}	
+];
 function updateLabels(){
     for (var i in ss) {
         var label = ss[i].label;
         label.update();
     }
-}
+} 
 
 function showLabels( l, show ){
 	for (var i in l) {
@@ -5921,7 +5921,7 @@ var Label = function( glObject, size, element ) {
 		var vector = new THREE.Vector3();
 		vector.getPositionFromMatrix( this.gyro.matrixWorld );
 		vector.sub( camera.position );
-		this.gyro.rotation.y = Math.atan2( vector.x, vector.z) + 3;
+		this.gyro.rotation.y = Math.atan2( vector.x, vector.z) + 3;	
 	}
 
 	label.update = function () {
@@ -5938,9 +5938,9 @@ var Label = function( glObject, size, element ) {
 		var isParentVisible = this.object.visible;
 		var distanceTo = this.object.position.clone().distanceTo( camera.position );
 		var inCamRange = (distanceTo > this.visMin && distanceTo < this.visMax);
-
+        
         this.setPosition( screenPos.x, screenPos.y );
-        if ( this.visible && inCamRange && inFrustum && isParentVisible ) {
+        if ( this.visible && inCamRange && inFrustum && isParentVisible ) { 
         	this.show();
         }
         else this.hide();
@@ -5989,7 +5989,7 @@ function lensFlareUpdateCallback( object ) {
     var vecY = -this.positionScreen.y * 2;
     var size = object.size ? object.size : 1000;
     var camDistance = camera.position.length();
-
+    
     for (f = 0; f < fl; f++) {
         flare = this.lensFlares[f];
         flare.x = this.positionScreen.x + vecX * flare.distance;
@@ -5999,29 +5999,29 @@ function lensFlareUpdateCallback( object ) {
         flare.opacity = 1.0 - heatVisionValue;
     }
 }var Orbit = function( e, material ){
-
+	
 	var LOD,
 		axisRez = 40,
 		eph = e;
 
 	var axisPoints = [];
 	var spline = [];
-
+	
 	for( var i = 0; i < axisRez; i++ ) {
 		x = ( eph.A * Math.cos( i / axisRez * Math.PI * 2 ) + ( eph.aphelion - eph.A ) );
 		z = ( eph.semiMinor * Math.sin( i / axisRez * Math.PI * 2 ) );
 		axisPoints[i] = new THREE.Vector3( x, 0, z );
 	}
-
+		
 	spline =  new THREE.ClosedSplineCurve3( axisPoints );
 	var splineGeo = new THREE.Geometry();
 	var splinePoints = spline.getPoints( axisRez );
-
+	
 	for(var i = 0; i < splinePoints.length; i++){
-		splineGeo.vertices.push(splinePoints[i]);
+		splineGeo.vertices.push(splinePoints[i]);  
 	}
-
-	LOD = new THREE.Line( splineGeo, material );
+	
+	LOD = new THREE.Line( splineGeo, material );	
 
  return LOD;
 };var Planet = function( material, i ){
@@ -6043,75 +6043,45 @@ function lensFlareUpdateCallback( object ) {
 	// 	this.orbiting( this.startTime, eph.period, .00001 );
 	// };
 
-	LOD.orbiting = function( eph, JD, scale ){
+	LOD.orbiting = function( eph, time, scale ){
+
+		JD = time.Date2Julian();
 
 		var DEGS = 180/Math.PI;      // convert radians to degrees
 		var RADS = Math.PI/180;      // convert degrees to radians
 		var EPS  = 1.0e-12;          // machine error constant
 		var cy = (JD - 2451545)/36525;         // centuries since J2000
-
+		
 		var ap = P.a_semimajor_axis + (P.a_per_cy*cy);
 		var ep = P.e_eccentricity + (P.e_per_cy*cy);
 		var ip = (P.i_inclination + (P.i_per_cy*cy/3600))*RADS;
 		var op = (P.O_ecliptic_long + (P.O_per_cy*cy/3600))*RADS;
 		var wp = (P.w_perihelion + (P.w_per_cy*cy/3600))*RADS;
-		var lp = mod2pi((P.L_mean_longitude + (P.L_per_cy*cy/3600))*RADS);
+		var lp = mod2pi((P.L_mean_longitude + (P.L_per_cy*cy/3600))*RADS);		
 
 		// position of planet in its orbit
 		var mp = mod2pi(lp - wp);
 		var vp = true_anomaly(mp, ep);  //TODO: if ep >1, then error
 		var rp = ap*(1 - ep*ep) / (1 + ep*Math.cos(vp));
-
+		
 		// heliocentric rectangular coordinates of planet
-		var dx = rp*(Math.cos(op)*Math.cos(vp + wp - op) - Math.sin(op)*Math.sin(vp + wp - op)*Math.cos(ip));
-		var dz = rp*(Math.sin(op)*Math.cos(vp + wp - op) + Math.cos(op)*Math.sin(vp + wp - op)*Math.cos(ip));
-		var dy = rp*(Math.sin(vp + wp - op)*Math.sin(ip));
+		var dx = rp*(Math.cos(op)*Math.cos( vp + wp - op) - Math.sin(op)*Math.sin(vp + wp - op)*Math.cos(ip));
+		var dz = rp*(Math.sin(op)*Math.cos( vp + wp - op) + Math.cos(op)*Math.sin(vp + wp - op)*Math.cos(ip));
+		var dy = rp*(Math.sin(vp + wp - op) * Math.sin(ip));
 
-		this.position.x = 100 * dx;
-		this.position.y = 100 * dy;
-		this.position.z = 100 * dz;
+		this.position.x = scale * dx;
+		this.position.y = scale * dy;
+		this.position.z = scale * dz;
 
 		var date = JD.Julian2Date();
 		if ((P.planetName == "Earth") && (date.getMonth() != lastDate)) {
-			console.log(date.toString());
+			//console.log(date.toString());
 			lastDate = date.getMonth();
 		}
 	};
 
 	return LOD;
 
-};
-
-Number.prototype.Julian2Date = function() {
-
-    var X = parseFloat(this)+0.5;
-    var Z = Math.floor(X); //Get day without time
-    var F = X - Z; //Get time
-    var Y = Math.floor((Z-1867216.25)/36524.25);
-    var A = Z+1+Y-Math.floor(Y/4);
-    var B = A+1524;
-    var C = Math.floor((B-122.1)/365.25);
-    var D = Math.floor(365.25*C);
-    var G = Math.floor((B-D)/30.6001);
-    //must get number less than or equal to 12)
-    var month = (G<13.5) ? (G-1) : (G-13);
-    //if Month is January or February, or the rest of year
-    var year = (month<2.5) ? (C-4715) : (C-4716);
-    month -= 1; //Handle JavaScript month format
-    var UT = B-D-Math.floor(30.6001*G)+F;
-    var day = Math.floor(UT);
-    //Determine time
-    UT -= Math.floor(UT);
-    UT *= 24;
-    var hour = Math.floor(UT);
-    UT -= Math.floor(UT);
-    UT *= 60;
-    var minute = Math.floor(UT);
-    UT -= Math.floor(UT);
-    UT *= 60;
-    var second = Math.round(UT);
-
-    return new Date(Date.UTC(year, month, day, hour, minute, second));
 };
 
 function meanElements( e, JD ){
@@ -6132,7 +6102,7 @@ function mod2pi( x ) {
 	b = x / ( 2 * Math.PI );
 	a = ( 2 * Math.PI ) * ( b - abs_floor( b ) );
 	if ( a < 0 ) a = ( 2 * Math.PI ) + a;
-	return a;
+	return a; 
 }
 
 function abs_floor(x) {
@@ -6154,12 +6124,12 @@ function true_anomaly( mp, ep) {
 		if (Math.abs( E - eone) < 0.0000007) break;
 		loop++;
 	}
-
+	
 	// convert eccentric anomaly to true anomaly
 	var V = 2 * Math.atan2( Math.sqrt( ( 1 + ep ) / ( 1 - ep ) ) * Math.tan( 0.5 * E ), 1 );
 
 	// modulo 2pi
-	if ( V < 0 ) V = V + ( 2 * Math.PI );
+	if ( V < 0 ) V = V + ( 2 * Math.PI ); 
 
 	return V;
 }
@@ -6192,11 +6162,11 @@ var Sun = function(){
 
 	} );
 
-	// var sunMaterial = new THREE.MeshLambertMaterial( {
-	// 	map: THREE.ImageUtils.loadTexture( './models/solarsystem/sunmap.jpg' ),
-	// 	overdraw: true
+	// var sunMaterial = new THREE.MeshLambertMaterial( { 
+	// 	map: THREE.ImageUtils.loadTexture( './models/solarsystem/sunmap.jpg' ), 
+	// 	overdraw: true 
 	// });
-
+	
 	var sun = new Planet( sunMaterial );
 	sun.name = "The Sun";
 
@@ -6205,20 +6175,20 @@ var Sun = function(){
 	********************************/
 	return sun;
 }
-var ss = [],
-	sun,
-	planets = [],
-	orbits = [],
+var ss = [], 
+	sun, 
+	planets = [], 
+	orbits = [], 
 	ssScale,
 	scaling = true,
 	prevTime = 0;
 
 var solarSystemScale = function(){
-	this.s = .000001;
-	this.sunScale = .00001;
-	this.planetScale = .001;
+	this.s = 1;	
+	this.sunScale = 1;
+	this.planetScale = 1;
 	return this;
-}
+} 				
 
 function findSemiMinor(){
 	for( var i = 1; i < ephemeris.length; i++ ){
@@ -6233,20 +6203,19 @@ function planetsOrbit( time ){
 			ss[i].orbiting( ephemeris[i], time, ssScale.s );
 		}
 		prevTime = time;
-	}
+	}	
 }
 
 function setSolarSystemScale(){
 	if ( scaling ){
 		var sunS = 1392684 * ssScale.sunScale;
-		// ss[0].scale.set( sunS, sunS, sunS );
+		ss[0].scale.set( sunS, sunS, sunS );
 
 		for ( var i = 1; i < ss.length; i ++ ) {
 			var planetS = ephemeris[i].size * ssScale.planetScale;
 			ss[i].scale.set( planetS, planetS, planetS );
 			// ss[i].orbit.scale.set( ssScale.s, ssScale.s, ssScale.s );
 	    }
-
 	scaling = false;
 
 	}
@@ -6255,7 +6224,10 @@ function setSolarSystemScale(){
 function makeSolarSystem(){
 
 	findSemiMinor();
-	ssScale = new solarSystemScale( { s: 10, sunScale: 10, planetScale: .001 } );
+	ssScale = new solarSystemScale();
+	ssScale.s = 100;
+	ssScale.sunScale = .00001;
+	ssScale.planetScale = .0001;
 
 	var ss3D = new THREE.Object3D();
 
@@ -6267,17 +6239,17 @@ function makeSolarSystem(){
 
 	for ( var i = 1; i < ephemeris.length; i ++ ) {
 
-		var planetMaterial = new THREE.MeshLambertMaterial( {
-				map: THREE.ImageUtils.loadTexture( ephemeris[i].texture ),
-				overdraw: true
+		var planetMaterial = new THREE.MeshLambertMaterial( { 
+				map: THREE.ImageUtils.loadTexture( ephemeris[i].texture ), 
+				overdraw: true 
 		});
 
-		var axisMaterial = new THREE.LineBasicMaterial( {
-			color: 0x202020,
-			opacity: .5,
-			linewidth: .5
+		var axisMaterial = new THREE.LineBasicMaterial( { 
+			color: 0x202020, 
+			opacity: .5, 
+			linewidth: .5 
 		});
-
+		
 		ss.push( new Planet( planetMaterial, i ) );
 		// ss[i].setOrbit( ephemeris[i] );
 		ss[i].name = ephemeris[i].name;
@@ -6290,12 +6262,17 @@ function makeSolarSystem(){
 		ss[i].label = new Label( ss[i], 1, container );
 
 	}
-
-	planetsOrbit(2456365);
-	// setSolarSystemScale();
 	return ss3D;
-};var camPosition = function( position, target, time ){
+};var camPosition = function( position, target, time, is_client ){
 	this.tween = function(){
+        if (!is_client) {
+            conn.send(JSON.stringify({
+                'position':position,
+                'target':target,
+                'time':time
+            }));
+        }
+
 		TWEEN.removeAll();
 		camTweener( position, target, time );
 	};
@@ -6318,12 +6295,12 @@ function camTweener( newCamPosition, newTarget, time ) {
 		.to( newCamPosition , time )
 		.delay(0)
 		.easing(TWEEN.Easing.Sinusoidal.InOut)
-		.onStart( function(){
-			controls.enabled = false;
+		.onStart( function(){ 
+			controls.enabled = false; 
 			controls.update();
 		} )
-		.onComplete( function(){
-			controls.enabled = true;
+		.onComplete( function(){ 
+			controls.enabled = true; 
 			controls.update();
 
 		} )
@@ -6335,14 +6312,15 @@ function camTweener( newCamPosition, newTarget, time ) {
 		.easing(TWEEN.Easing.Sinusoidal.InOut)
 		.onUpdate( update )
 		.onComplete( function(){
-			//update();
+			// update();
 			// camTarget = newTarget;
 			camera.lookAt( newTarget );
 		});
 
 	tweenPosition.start();
 	tweenLookAt.start();
-}var WIDTH = $(window).width(),
+}
+var WIDTH = $(window).width(),
     HEIGHT = $(window).height();
 
 var VIEW_ANGLE = 45,
@@ -6350,12 +6328,12 @@ var VIEW_ANGLE = 45,
 	NEAR = 1,
 	FAR = 100000;
 
-var stats,
+var stats, 
 	scene,
 	camera,
-	renderer,
+	renderer, 
 	projector,
-	composer,
+	composer, 
 	controls,
 	tween,
 	camTarget,
@@ -6366,7 +6344,7 @@ var trajectory;
 var time, t;
 var clock = new THREE.Clock();
 
-var mouse = { x: -1000, y: 0 },
+var mouse = { x: -1000, y: 0 }, 
 	INTERSECTED;
 
 var dae;
@@ -6427,7 +6405,7 @@ function init() {
 	camTarget = scene.position;
 
 	fovValue = 0.5 / Math.tan(camera.fov * Math.PI / 360) * HEIGHT;
-
+	
 	var ambientLight = new THREE.AmbientLight( 0x404040 );
 	ambientLight.color.setRGB( .15, .15, .15 );
 	scene.add(ambientLight);
@@ -6456,11 +6434,27 @@ function init() {
 
 	setupScene();
 
-	camOne = new camPosition( { x: 0, y: 50, z: 500 }, { x: 0, y: 0, z: 0 }, 1500 );
-	camTwo = new camPosition( { x: 0, y: 12000, z: 500 }, { x: 0, y: 0, z: 0 }, 5000 );
-	camThree = new camPosition( { x: -500, y: 250, z: -1000 }, { x: 0, y: 0, z: 0 }, 3000 );
-	camEarth = new camPosition( { x: 50, y: 50, z: 250 }, ss[3].position, 1500 );
-	camMars = new camPosition( { x: 75, y: 50, z: 300 }, ss[4].position, 1500 );
+    // sockets
+    if ('WebSocket' in window){
+        console.log('websocket works!');
+        conn = new WebSocket('ws://localhost:8888/socks');
+        conn.onmessage = function(e){
+            data = JSON.parse(e.data);
+            position = data['position']
+            target = data['target']
+            time = data['time']
+            camX = new camPosition( position, target, time, true );
+            camX.tween();
+        }
+    } else {
+        console.log("websocket don't work!!");
+    }
+	
+	camOne = new camPosition( { x: 0, y: 50, z: 500 }, { x: 0, y: 0, z: 0 }, 1500, false );
+	camTwo = new camPosition( { x: 0, y: 12000, z: 500 }, { x: 0, y: 0, z: 0 }, 5000, false );
+	camThree = new camPosition( { x: -500, y: 250, z: -1000 }, { x: 0, y: 0, z: 0 }, 3000, false );
+	camEarth = new camPosition( { x: 50, y: 50, z: 250 }, ss[3].position, 1500, false );
+	camMars = new camPosition( { x: 75, y: 50, z: 300 }, ss[4].position, 1500, false );
 
 	t = new timer();
 	t.count = 2456365;
@@ -6487,6 +6481,22 @@ function buildGUI(){
 	var gui = new dat.GUI();
 	gui.add( t, 'multiplier', 0, 5).name( 'Orbit Speed' );
 
+	gui.add(ssScale, 's', 1, 100 )
+		.name('SS Scale')
+		.onChange( function(){
+			scaling = true;
+		});
+	gui.add(ssScale, 'sunScale', .00001, .00002 )
+		.name('Sun Scale')
+		.onChange( function(){
+			scaling = true;
+		});
+	gui.add(ssScale, 'planetScale', .0001, .001 )
+		.name('Planet Scale')
+		.onChange( function(){
+			scaling = true;
+		});
+
 	var camFolder = gui.addFolder( 'Camera Positions' );
 	camFolder.open();
 	camFolder.add( camOne, 'tween' ).name( 'Camera Home' );
@@ -6511,7 +6521,7 @@ function setupScene(){
 
 	var ruler = new Ruler( ss[3], ss[4] );
 	// scene.add( ruler );
-
+	
 	scene.add( solarSystem );
 	// scene.add( lensFlares );
 }
@@ -6542,6 +6552,10 @@ function onWindowResize() {
 
 function animate() {
 
+	var delta = clock.getDelta();
+	var time = clock.getElapsedTime();
+	var currentTime = new Date();
+
 	requestAnimationFrame( animate );
 
     camera.updateProjectionMatrix();
@@ -6553,7 +6567,7 @@ function animate() {
 	stats.update();
 	TWEEN.update();
 	setSolarSystemScale();
-	planetsOrbit( t.count );
+	planetsOrbit( currentTime );
 
 	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
 	projector.unprojectVector( vector, camera );
@@ -6565,11 +6579,11 @@ function animate() {
 	if ( intersects.length > 0 ) {
 
 		if ( INTERSECTED != intersects[ 0 ].object ) {
-
+			
 			INTERSECTED = intersects[ 0 ].object;
 			INTERSECTED.label.show();
 			// setLoadMessage('Awesome information about ' + INTERSECTED.name + ' could go here!');
-			$( '#loadtext' ).fadeIn('fast');
+			// $( '#loadtext' ).fadeIn('fast');
 
 		}
 
@@ -6580,12 +6594,9 @@ function animate() {
 		}
 
 		INTERSECTED = null;
-		$( '#loadtext' ).fadeOut('fast');
+		//  $( '#loadtext' ).fadeOut('fast');
 
-	}
-
-	var delta = clock.getDelta();
-	var time = clock.getElapsedTime();
+	}	
 
 	uniforms.time.value = time + delta;
 	t.count = t.count + 1 * t.multiplier;
@@ -6599,8 +6610,9 @@ function render() {
 	renderer.clear();
 	renderer.render( scene, camera );
 
-}var stars = function( systemSize, particleSize){
-
+}
+var stars = function( systemSize, particleSize){
+    
     var particles, geometry, material, i;
     geometry = new THREE.Geometry();
 
@@ -6628,13 +6640,13 @@ function render() {
     particles.rotation.x = Math.random() * 6;
     particles.rotation.y = Math.random() * 6;
     particles.rotation.z = Math.random() * 6;
-
+ 
     return particles;
 }
 
 
-
-
+              
+   
 var Trajectory = function( start, end, resolution){
 
 	var start,
@@ -6649,7 +6661,7 @@ var Trajectory = function( start, end, resolution){
 	;
 
 	return {
-
+		
 		line: line,
 
    		drawTrajectory: function ( start, end ) {
@@ -6665,7 +6677,7 @@ var Trajectory = function( start, end, resolution){
 			splineGeo = new THREE.Geometry();
 
 			for(var i = 0; i < splinePoints.length; i++){
-				splineGeo.vertices.push( splinePoints[i] );
+				splineGeo.vertices.push( splinePoints[i] );  
 			}
 
 			line = new THREE.Line( splineGeo, splineMat );
