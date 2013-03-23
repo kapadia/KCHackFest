@@ -28,7 +28,7 @@ exports.config =
     stylesheets:
       joinTo:
         'stylesheets/solar_system.css': /solar_system/
-        'stylesheets/app.css': /application/
+        'stylesheets/app.css': /application|vendor/
       order:
         before: ['vendor/styles/normalize.css']
         after: ['vendor/styles/helpers.css']
