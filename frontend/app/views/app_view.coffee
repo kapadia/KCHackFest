@@ -6,5 +6,7 @@ module.exports = class AppView extends View
 
   initialize: ->
     @router = new AppRouter()
-    Luminosity?.Routers?.AppRouter = @router
+    CSLE?.Routers?.AppRouter = @router
+    
+    @html require 'views/templates/home'
 

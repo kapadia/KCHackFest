@@ -851,6 +851,7 @@ html,
 body {
   height: 100%;
   width: 100%;
+  margin: 0 auto;
 }
 body {
   text-rendering: optimizeLegibility;
@@ -1034,4 +1035,7 @@ cursor not-allowed {
   .layout-container {
     width: 1170px;
   }
+}
+.home li {
+  display: inline-block;
 }

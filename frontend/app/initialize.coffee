@@ -1,13 +1,13 @@
-@Luminosity ?= {}
-Luminosity.Routers ?= {}
-Luminosity.Views ?= {}
-Luminosity.Models ?= {}
-Luminosity.Collections ?= {}
+@CSLE ?= {}
+CSLE.Routers ?= {}
+CSLE.Views ?= {}
+CSLE.Models ?= {}
+CSLE.Collections ?= {}
 
 $ ->
 
   # Initialize App
-  Luminosity.Views.AppView = new AppView = require 'views/app_view'
+  CSLE.Views.AppView = new AppView = require 'views/app_view'
 
   # Initialize Backbone History
   Backbone.history.start pushState: yes

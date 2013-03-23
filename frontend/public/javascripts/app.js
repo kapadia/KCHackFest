@@ -82,30 +82,30 @@
 window.require.register("initialize", function(exports, require, module) {
   var _ref, _ref1, _ref2, _ref3, _ref4;
 
-  if ((_ref = this.Luminosity) == null) {
-    this.Luminosity = {};
+  if ((_ref = this.CSLE) == null) {
+    this.CSLE = {};
   }
 
-  if ((_ref1 = Luminosity.Routers) == null) {
-    Luminosity.Routers = {};
+  if ((_ref1 = CSLE.Routers) == null) {
+    CSLE.Routers = {};
   }
 
-  if ((_ref2 = Luminosity.Views) == null) {
-    Luminosity.Views = {};
+  if ((_ref2 = CSLE.Views) == null) {
+    CSLE.Views = {};
   }
 
-  if ((_ref3 = Luminosity.Models) == null) {
-    Luminosity.Models = {};
+  if ((_ref3 = CSLE.Models) == null) {
+    CSLE.Models = {};
   }
 
-  if ((_ref4 = Luminosity.Collections) == null) {
-    Luminosity.Collections = {};
+  if ((_ref4 = CSLE.Collections) == null) {
+    CSLE.Collections = {};
   }
 
   $(function() {
     var AppView;
 
-    Luminosity.Views.AppView = new (AppView = require('views/app_view'));
+    CSLE.Views.AppView = new (AppView = require('views/app_view'));
     return Backbone.history.start({
       pushState: true
     });
@@ -475,11 +475,24 @@ window.require.register("views/app_view", function(exports, require, module) {
       var _ref1;
 
       this.router = new AppRouter();
-      return typeof Luminosity !== "undefined" && Luminosity !== null ? (_ref1 = Luminosity.Routers) != null ? _ref1.AppRouter = this.router : void 0 : void 0;
+      if (typeof CSLE !== "undefined" && CSLE !== null) {
+        if ((_ref1 = CSLE.Routers) != null) {
+          _ref1.AppRouter = this.router;
+        }
+      }
+      return this.html(require('views/templates/home'));
     };
 
     return AppView;
 
   })(View);
   
+});
+window.require.register("views/templates/home", function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    
+
+
+    return "<div class='home'>\n  <ul>\n    <li>Solar System</li>\n    <li>Astronomical Data</li>\n    <li>Curiosity</li>\n  </ul>\n</div>";});
 });

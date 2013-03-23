@@ -2,3 +2,5 @@
 *.fits
 *.fit
 *.fz
+node_modules/
+tmp/
