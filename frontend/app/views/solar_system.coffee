@@ -5,6 +5,5 @@ module.exports = class SolarSystemView extends View
   className: 'solar_system'
   el: 'body.application'
   render: =>
-    console.log "solar-system"
     @html @template
     @
