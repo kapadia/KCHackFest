@@ -8,7 +8,7 @@ module.exports = class AppRouter extends Backbone.Router
 
 
   index: =>
-    console.log 'index'
+    CSLE.Views.AppView.homeView.render()
 
   solarSystemDemo: =>
     CSLE.Views.AppView.solarSystem.render()
