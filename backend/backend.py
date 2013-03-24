@@ -18,6 +18,7 @@ class Client:
 doc_clients = defaultdict(set)
 doc_events = defaultdict(dict)
 
+
 def take_pilot(conn, data):
   conn.client.is_pilot = True
   for c in doc_clients[conn.doc]:
@@ -32,10 +33,19 @@ def release_pilot(conn, data):
   for c in doc_clients[conn.doc]:
     c.can_broadcast = True
 
+
+def list_users(conn, data):
+  users = dict((k,len(v)) for k,v in doc_clients.iteritems())
+  msg = {'event': 'list-users', 'data': users}
+  conn.write_message(json.dumps(msg))
+
+
 special_handlers = {
     'take-pilot': take_pilot,
     'release-pilot': release_pilot,
+    'list-users': list_users,
 }
+
 
 class InteractionHandler(WebSocketHandler):
   '''Handles all websocket connections and messages'''
@@ -73,14 +83,8 @@ class InteractionHandler(WebSocketHandler):
     doc_clients[self.doc].remove(self.client)
 
 
-class DocsHandler(tornado.web.RequestHandler):
-  def get(self):
-    docs = dict((k,{"users": len(v)}) for k,v in doc_clients.iteritems())
-    self.write(json.dumps(docs))
-
 application = tornado.web.Application([
     (r"/docs/(.+)", InteractionHandler),
-    (r"/docs", DocsHandler),
 ])
 
 
