@@ -32,6 +32,8 @@ module.exports = class AstroDataView extends View
     @gChannel = $('[data-type="g"]')
     @bChannel = $('[data-type="b"]')
     @svg = $('svg.annotation')
+    @imageEl = $("article .image")
+    
     @html @overlay
     
     @
@@ -196,8 +198,12 @@ module.exports = class AstroDataView extends View
       # Setup mouse callbacks for webfits
       callbacks =
         onmousemove: (x, y, opts, e) =>
+          
           # Update the marker position
-          @marker.setAttribute("transform", "translate(#{e.offsetX}, #{e.offsetY})")
+          pos = @imageEl.position()
+          offsetX = e.pageX - pos.left
+          offsetY = e.pageY - pos.top
+          @marker.setAttribute("transform", "translate(#{offsetX}, #{offsetY})")
           
           @updateInfo(x, y)
           
@@ -207,8 +213,8 @@ module.exports = class AstroDataView extends View
               y: y
               xOffset: @webfits.xOffset
               yOffset: @webfits.yOffset
-              xMarker: e.offsetX
-              yMarker: e.offsetY
+              xMarker: offsetX
+              yMarker: offsetY
         onzoom: =>
           if @socket_active
             @socket.send 'zoom',
@@ -217,6 +223,8 @@ module.exports = class AstroDataView extends View
       @webfits.setupControls(callbacks)
   
   wheelHandler: (e) =>
+    e.preventDefault()
+    
     @webfits.wheelHandler(e)
   
   updateInfo: (x, y) =>
@@ -317,7 +325,7 @@ module.exports = class AstroDataView extends View
     # Create an x axis
     xAxis = d3.svg.axis()
       .scale(x)
-      .ticks(6)
+      .ticks(3)
       .orient('bottom')
 
     # Append the x axis to the parent object
