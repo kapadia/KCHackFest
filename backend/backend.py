@@ -16,7 +16,7 @@ class Client:
 
 # process-global set of per-document connected clients
 doc_clients = defaultdict(set)
-
+doc_events = defaultdict(dict)
 
 def take_pilot(conn, data):
   conn.client.is_pilot = True
@@ -32,12 +32,10 @@ def release_pilot(conn, data):
   for c in doc_clients[conn.doc]:
     c.can_broadcast = True
 
-
 special_handlers = {
     'take-pilot': take_pilot,
     'release-pilot': release_pilot,
 }
-
 
 class InteractionHandler(WebSocketHandler):
   '''Handles all websocket connections and messages'''
@@ -45,6 +43,9 @@ class InteractionHandler(WebSocketHandler):
     self.doc = doc
     self.client = Client(self)
     doc_clients[doc].add(self.client)
+
+    for msg in doc_events[self.doc].itervalues():
+      self.write_message(msg)
 
   def on_special(self, msg):
     data = json.loads(msg)
@@ -58,6 +59,10 @@ class InteractionHandler(WebSocketHandler):
     # don't pass it on if we're muted
     if not self.client.can_broadcast:
       return
+
+    # save this message
+    data = json.loads(msg)
+    doc_events[self.doc][data['event']] = msg
 
     # broadcast to all the other clients
     for c in doc_clients[self.doc]:
