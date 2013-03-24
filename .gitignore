@@ -7,5 +7,4 @@ tmp/
 frontend/public
 *\~
 *.dae
-*.png
 *.swp
