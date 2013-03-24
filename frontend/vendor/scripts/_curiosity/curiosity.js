@@ -212,12 +212,15 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 			rotateStart.set( event.clientX, event.clientY );
 
+			conn.send("camera-rotate", {x: event.clientX, y: event.clientY})
+
 		} else if ( event.button === 1 ) {
 
 			state = STATE.ZOOM;
 
 			zoomStart.set( event.clientX, event.clientY );
 
+			conn.send("camera-zoom", {x: event.clientX, y: event.clientY})
 		}
 
 		document.addEventListener( 'mousemove', onMouseMove, false );
@@ -229,9 +232,17 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		event.preventDefault();
 
+		conn.send('mouse-move', {x: event.clientX, y: event.clientY});
+
+		handleMouseMove(event.clientX, event.clientY);
+
+	}
+
+	function handleMouseMove(x, y) {
+
 		if ( state === STATE.ROTATE ) {
 
-			rotateEnd.set( event.clientX, event.clientY );
+			rotateEnd.set(x, y);
 			rotateDelta.subVectors( rotateEnd, rotateStart );
 
 			scope.rotateLeft( 2 * Math.PI * rotateDelta.x / PIXELS_PER_ROUND * scope.userRotateSpeed );
@@ -241,17 +252,13 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		} else if ( state === STATE.ZOOM ) {
 
-			zoomEnd.set( event.clientX, event.clientY );
+			zoomEnd.set(x, y);
 			zoomDelta.subVectors( zoomEnd, zoomStart );
 
 			if ( zoomDelta.y > 0 ) {
-
 				scope.zoomIn();
-
 			} else {
-
 				scope.zoomOut();
-
 			}
 
 			zoomStart.copy( zoomEnd );
@@ -303,6 +310,18 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.domElement.addEventListener( 'mousedown', onMouseDown, false );
 	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
 	this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
+
+	conn.on('camera-rotate', function(data){
+		state = STATE.ROTATE;
+		rotateStart.set(data.x, data.y);
+	});
+	conn.on('camera-zoom', function(data) {
+		state = STATE.ZOOM;
+		zoomStart.set(data.x, data.y);
+	});
+	conn.on('mouse-move', function(data) {
+	    handleMouseMove(data.x, data.y);
+	});
 
 };
 /**
@@ -5017,8 +5036,11 @@ var Rover = function ( dae ) {
 	function exponentialEaseOut( k ) { return k === 1 ? 1 : - Math.pow( 2, - 10 * k ) + 1; }
 
 };
-var CAMTWEEN = function( position, target, time ){
+var CAMTWEEN = function( position, target, time, is_client ){
 	this.tween = function(){
+        if (!is_client) {
+            conn.send('preset-camera-select', {position: position, target: target, time: time});
+        }
 		TWEEN.removeAll();
 		camTweener( position, target, time * 1000 );
 	};
@@ -5255,11 +5277,15 @@ function setupScene(){
 function buildGUI(){
 
     var camTweens = { 
-        one: new CAMTWEEN( { x:5, y:5, z:5 }, { x:0, y:0, z:0 }, 1 ),
-        two: new CAMTWEEN( { x:0, y:4, z:-10 }, { x:0, y:0, z:0 }, 1 ),
-        three: new CAMTWEEN( { x:-.36, y:2.1, z:.65 }, { x:0, y:0, z:10 }, 1 ),
-        four: new CAMTWEEN( { x:-5, y:3, z:-2 }, { x:0, y:0, z:0 }, 1 )
+        one: new CAMTWEEN( { x:5, y:5, z:5 }, { x:0, y:0, z:0 }, 1, false ),
+        two: new CAMTWEEN( { x:0, y:4, z:-10 }, { x:0, y:0, z:0 }, 1, false ),
+        three: new CAMTWEEN( { x:-.36, y:2.1, z:.65 }, { x:0, y:0, z:10 }, 1, false ),
+        four: new CAMTWEEN( { x:-5, y:3, z:-2 }, { x:0, y:0, z:0 }, 1, false )
     };
+
+	conn.on('preset-camera-select', function(data) {
+		(new CAMTWEEN( data.position, data.target, data.time, true )).tween();
+	});
 
     var gui = new dat.GUI();
 
