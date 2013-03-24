@@ -40,3 +40,8 @@ I made the JS for the solar system like this:
     cat `grep 'script src' index.html | grep -v libs | cut -d'"' -f2 | xargs` >solar_system.js
 
 It's been modified pretty heavily since, so dropping that file in will no longer be enough.
+
+The rights to the Curiosity model are somewhat tricky, so the model is not included in this repository.
+The rover demo will fail semi-gracefully, and that's expected.
+Once you get the rover model (from the appropriate NASA/JPL sources),
+save it to `frontend/app/assets/models/rover_c4d_001.dae`.
