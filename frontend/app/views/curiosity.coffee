@@ -10,7 +10,7 @@ module.exports = class CuriosityView extends View
     setTimeout((=>@socket.send 'can-i-pilot', {}, true), 500)
     @
   initSocket: ->
-    conn = new CSLESocket('curiosity', 'ws://' + window.location.hostname + ':8888')
+    conn = new CSLESocket('curiosity', 'ws://' + window.location.hostname + ':8898')
     conn.on('keydown', window.onKeyDown)
     conn.on('keyup', window.onKeyUp)
     conn.on 'preset-camera-select', (data) ->
