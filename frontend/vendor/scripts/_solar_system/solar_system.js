@@ -6335,12 +6335,9 @@ function findSemiMinor(){
 }
 
 function planetsOrbit( time ){
-	if( time > prevTime ){
-		for ( var i = 1; i < ss.length; i ++ ) {
-	        var planet = ss[i];
-			ss[i].orbiting( ephemeris[i], time, ssScale.s );
-		}
-		prevTime = time;
+	for ( var i = 1; i < ss.length; i ++ ) {
+    var planet = ss[i];
+		ss[i].orbiting( ephemeris[i], time, ssScale.s );
 	}
 }
 
@@ -6743,7 +6740,7 @@ function animate() {
 	}
 
 	uniforms.time.value = time + delta;
-	t.count = t.count + 1 * t.multiplier;
+	t.count += 1 * t.multiplier;
 
 
 	camera.lookAt( camTarget );
