@@ -23,4 +23,4 @@ module.exports = class AppRouter extends Backbone.Router
   curiosityDemo: =>
     CSLE.Views.AppView.homeView.socket?.close()
     CSLE.Views.AppView.astroData.socket?.close()
-    console.log 'curiosityDemo'
+    CSLE.Views.AppView.curiosity.render()
