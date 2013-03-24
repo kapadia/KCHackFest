@@ -6021,7 +6021,7 @@ var Label = function( glObject, size, element ) {
     label.visMin = 0;
     label.visMax = 10000;
 
-	//element.appendChild( label );
+	// element.appendChild( label );
 
 	label.setPosition = function( x, y ) {
 		x -= this.labelWidth * 0.5;
@@ -6303,6 +6303,9 @@ var ss = [],
 	ssScale,
 	scaling = true,
 	prevTime = 0;
+
+window.scaling = scaling
+window.ssScale = ssScale
 
 var solarSystemScale = function(){
 	this.s = 1;

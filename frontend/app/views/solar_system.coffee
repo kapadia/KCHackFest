@@ -36,12 +36,11 @@ module.exports = class SolarSystemView extends View
       window.controls.state = window.controls.STATE.NONE)
 
     conn.on('multiplier-change', (data) ->
-      t['multiplier'] = data.val
       window.gui.mult.object['multiplier'] = data.val
       window.gui.mult.updateDisplay())
     conn.on('ssScale-change', (data) ->
-      ssScale[data.property] = data.val
-      scaling = true
+      window.ssScale[data.property] = data.val
+      window.scaling = true
       for s in window.gui.scales
         s.object[data.property] = data.val
         s.updateDisplay())
