@@ -5440,10 +5440,10 @@ function makeDance(name, sequence, loop) {
 				}
 				var currStep = sequence[danceStep];
 				if (currStep[0] === 'rotationSpeed') {
-					if (currStep[1] < rover.rotationSpeed && currStep[1] < rover.rotationSpeed - 0.01) {
+					if (currStep[1] < rover.rotationSpeed && currStep[1] < rover.rotationSpeed - 0.1) {
 						controlsRover.moveLeft = false;
 						controlsRover.moveRight = true;
-					} else if (currStep[1] > rover.rotationSpeed && currStep[1] > rover.rotationSpeed + 0.01) {
+					} else if (currStep[1] > rover.rotationSpeed && currStep[1] > rover.rotationSpeed + 0.1) {
 						controlsRover.moveRight = false;
 						controlsRover.moveLeft = true;
 					} else {
