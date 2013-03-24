@@ -105,6 +105,7 @@ module.exports = class AstroDataView extends View
       
       # Cache width for coordinate transformations
       @width = header.get('NAXIS1')
+      @height = header.get('NAXIS2')
       
     # Read the data (spawns worker)
     dataunit.getFrameAsync(0, @createVisualization, opts)
@@ -221,10 +222,13 @@ module.exports = class AstroDataView extends View
   updateInfo: (x, y) =>
     sky = @wcs.pixelToCoordinate([x, y])
     
+    # Check if mouse in image range
+    return if x < 0 or y < 0 or x > @width or y > @height
+    
     # Get flux values
-    r = @arrays['i'][@width * y + x].toFixed(3)
-    g = @arrays['r'][@width * y + x].toFixed(3)
-    b = @arrays['g'][@width * y + x].toFixed(3)
+    r = @arrays['i'][@width * y + x]?.toFixed(3)
+    g = @arrays['r'][@width * y + x]?.toFixed(3)
+    b = @arrays['g'][@width * y + x]?.toFixed(3)
     @xCoord.text(x)
     @yCoord.text(y)
     @ra.text(sky.ra.toFixed(6))
