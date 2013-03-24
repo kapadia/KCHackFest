@@ -6185,9 +6185,6 @@ function lensFlareUpdateCallback( object ) {
 	// };
 
 	LOD.orbiting = function( eph, JD, scale ){
-
-		//JD = time.Date2Julian();
-
 		var DEGS = 180/Math.PI;      // convert radians to degrees
 		var RADS = Math.PI/180;      // convert degrees to radians
 		var EPS  = 1.0e-12;          // machine error constant
@@ -6601,7 +6598,7 @@ function init() {
 function buildGUI(){
 
 	var gui = new dat.GUI();
-	var mult = gui.add( t, 'multiplier', 0, 5)
+	var mult = gui.add( t, 'multiplier', -5, 5)
 	              .name( 'Orbit Speed' )
                       .onChange(function(val) {
 			  conn.send('multiplier-change', {val: val})
@@ -6714,8 +6711,7 @@ function animate() {
 	setSolarSystemScale();
 
 	var JD = currentTime.Date2Julian();
-	JD = t.count;
-	planetsOrbit( JD );
+	planetsOrbit(JD + t.count);
 
 	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
 	projector.unprojectVector( vector, camera );
