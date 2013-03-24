@@ -47,6 +47,31 @@ module.exports = class AstroDataView extends View
       header = f.getHeader()
       table = d3.select(".astro-data .metadata").append('table')
       tbody = table.append('tbody')
+      
+      data = []
+      data.push ['ORIGIN', header.get('ORIGIN')]
+      data.push ['TELESCOPE', header.get('TELESCOP')]
+      data.push ['RUN', header.get('RUN')]
+      data.push ['FRAME', header.get('FRAME')]
+      data.push ['CAMCOL', header.get('CAMCOL')]
+      data.push ['RERUN', header.get('RERUN')]
+      
+      rows = tbody.selectAll("tr")
+        .data(data)
+        .enter()
+        .append("tr")
+      
+      cells = rows.selectAll("td")
+        .data( (d) ->
+          console.log d
+          return d
+        )
+        .enter()
+        .append("td")
+          .text((d) ->
+            console.log d
+            d
+          )
 
     # Read the data (spawns worker)
     dataunit.getFrameAsync(0, @createVisualization, opts)
