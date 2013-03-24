@@ -6479,18 +6479,6 @@ function setLoadMessage( msg ){
 }
 
 $(document).ready( function() {
-  conn.on('change-texture', function(data) {
-    $.each(ss, function(i, planet) {
-      if (planet.name == data['planet']) {
-        console.log('Changed ' + planet.name + ' texture to ' + data['texture']);
-        var planetMaterial = new THREE.MeshLambertMaterial( {
-            map: THREE.ImageUtils.loadTexture(data['texture']),
-            overdraw: true
-        });
-        planet.material = planetMaterial;
-      }
-    });
-  });
   $('html').filedrop({
     //TODO: upload onto server
     url: './upload.php',

@@ -18,7 +18,15 @@ module.exports = class SolarSystemView extends View
       delay = data.delay || 0
       camTweener(data.position, data.target, delay)
       window.t = data.time)
-
+    conn.on('change-texture', (data) ->
+      for planet in ss
+        if planet.name is data['planet']
+          console.log('Changed ' + planet.name + ' texture to ' + data['texture'])
+          planetMaterial = new THREE.MeshLambertMaterial {
+              map: THREE.ImageUtils.loadTexture(data['texture']),
+              overdraw: true
+          }
+          planet.material = planetMaterial)
     conn.on('multiplier-change', (data) ->
       window.gui.mult.object['multiplier'] = data.val
       window.gui.mult.updateDisplay())
