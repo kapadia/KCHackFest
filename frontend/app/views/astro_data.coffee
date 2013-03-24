@@ -13,14 +13,23 @@ module.exports = class AstroDataView extends View
   
   initialize: ->
     Handlebars.registerPartial('overlay', require('views/templates/overlay'))
-    @once 'get-data', @getData
+    @on 'get-data', @getData
     
   render: =>
     @html @template
     @trigger 'get-data'
+    
+    # Cache DOM elements
     @sliders = {}
     for slider in document.getElementsByTagName('input') when slider.type is 'range'
       @sliders[slider.dataset.type] = slider
+    
+    @xCoord = $('[data-type="x"]')
+    @yCoord = $('[data-type="y"]')
+    @rChannel = $('[data-type="r"]')
+    @gChannel = $('[data-type="g"]')
+    @bChannel = $('[data-type="b"]')
+    
     @html @overlay
     @
   
@@ -130,10 +139,15 @@ module.exports = class AstroDataView extends View
         onmousemove: (x, y) =>
         
           # Get flux values
-          console.log 'i', @arrays['i'][2048 * y + x]
-          console.log 'r', @arrays['r'][2048 * y + x]
-          console.log 'g', @arrays['g'][2048 * y + x]
-        
+          r = @arrays['i'][2048 * y + x].toFixed(3)
+          g = @arrays['r'][2048 * y + x].toFixed(3)
+          b = @arrays['g'][2048 * y + x].toFixed(3)
+          @xCoord.text(x)
+          @yCoord.text(y)
+          @rChannel.text(r)
+          @gChannel.text(b)
+          @bChannel.text(g)
+          
           if @socket_active and @webfits.drag
             @socket.send 'mouse-move',
               x: @webfits.xOffset
