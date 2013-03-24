@@ -12,8 +12,9 @@ class Client:
     self.is_pilot = is_pilot
 
   def send(self, msg):
-    if self.conn:
+    try:
       self.conn.write_message(msg)
+    except: pass
 
 # process-global set of per-document connected clients
 doc_clients = defaultdict(set)
