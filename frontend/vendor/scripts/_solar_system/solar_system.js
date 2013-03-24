@@ -6483,19 +6483,26 @@ $(document).ready( function() {
     url: './upload.php',
     paramname: 'file',
     drop: function() {
+      //console.log(window.mouse);
+    },
+    dragOver: function() {
     },
     uploadStarted: function(i, file, len) {
-      console.log('started');
+      console.log('Started uploading' + file.name);
     },
     uploadFinished: function(i, file, response, time) {
+      var vector = new THREE.Vector3( window.mouse.x, window.mouse.y, 1 );
+      var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+      var intersects = raycaster.intersectObjects( solarSystem.children );
+			var INTERSECTED = intersects[ 0 ].object;
       conn.send('change-texture', {texture:"./images/solarsystem/" + file.name,
-                                   planet:window.INTERSECTED.name});
+                                   planet:INTERSECTED.name});
       var planetMaterial = new THREE.MeshLambertMaterial( {
           map: THREE.ImageUtils.loadTexture("./images/solarsystem/" + file.name),
           overdraw: true
       });
-      window.INTERSECTED.material = planetMaterial;
-      console.log('finished');
+      INTERSECTED.material = planetMaterial;
+      console.log('Finished uploading' + file.name);
     }
   });
 
