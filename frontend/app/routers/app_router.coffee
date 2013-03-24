@@ -10,16 +10,19 @@ module.exports = class AppRouter extends Backbone.Router
   index: =>
     CSLE.Views.AppView.astroData.socket?.close()
     CSLE.Views.AppView.solarSystem.socket?.close()
+    CSLE.Views.AppView.curiosity.socket?.close()
     CSLE.Views.AppView.homeView.render()
 
   solarSystemDemo: =>
     CSLE.Views.AppView.homeView.socket?.close()
     CSLE.Views.AppView.astroData.socket?.close()
+    CSLE.Views.AppView.curiosity.socket?.close()
     CSLE.Views.AppView.solarSystem.render()
 
   astroDataDemo: =>
     CSLE.Views.AppView.homeView.socket?.close()
     CSLE.Views.AppView.solarSystem.socket?.close()
+    CSLE.Views.AppView.curiosity.socket?.close()
     CSLE.Views.AppView.astroData.render()
 
   curiosityDemo: =>
