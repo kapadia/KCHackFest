@@ -6466,8 +6466,47 @@ function setLoadMessage( msg ){
 }
 
 $(document).ready( function() {
-        console.log("READY");
-        // sockets
+  console.log("READY");
+  // sockets
+  if ('WebSocket' in window){
+    conn = new CSLESocket('solar_system', 'ws://' + window.location.hostname + ':8888');
+  } else {
+    console.log("Websocket is not supported!!");
+  }
+
+  conn.on('change-texture', function(data) {
+    $.each(ss, function(i, planet) {
+      if (planet.name == data['planet']) {
+        //console.log('found planet ' + planet.name);
+        var planetMaterial = new THREE.MeshLambertMaterial( {
+            map: THREE.ImageUtils.loadTexture(planet['texture']),
+            overdraw: true
+        });
+        planet.material = planetMaterial;
+      }
+    });
+  });
+  $('html').filedrop({
+    //TODO: upload onto server
+    //url: window.location.hostname + ':8888/upload',
+    //paramname: 'lolcat',
+    drop: function() {
+      var planetMaterial = new THREE.MeshLambertMaterial( {
+          map: THREE.ImageUtils.loadTexture('./images/solarsystem/sunmap.jpg'),
+          overdraw: true
+      });
+      window.INTERSECTED.material = planetMaterial;
+    },
+    uploadStarted: function(i, file, len) {
+      console.log('started');
+    },  
+    uploadFinished: function(i, file, response, time) {
+      console.log('finished');
+      conn.send('change-texture', {texture:'./images/solarsystem/sunmap.jpg',
+                                   planet:window.INTERSECTED.name});
+    }   
+  });
+
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 	$( '#loadtext' ).show();
@@ -6492,23 +6531,6 @@ $(document).ready( function() {
 	        animate();
 			$("#loadtext").hide();
     };
-
-  $('html').filedrop({
-    url: '/upload',
-    paramname: 'lolcat',
-    drop: function() {
-      console.log(window.INTERSECTED);
-    },
-    uploadStarted: function(i, file, len) {
-      console.log('started');
-      //$.post('upload/test.html', function(data) {
-      //  $('.result').html(data);
-      //});
-    },
-    uploadFinished: function(i, file, response, time) {
-      console.log('finished');
-    }
-  });
 } );
 
 function init() {
