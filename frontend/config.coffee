@@ -10,9 +10,9 @@ exports.config =
     javascripts:
       joinTo:
         'javascripts/app.js': /^app/
-        'javascripts/vendor.js': /^vendor\/scripts\/(?!(solar_system|astro))/
-        'javascripts/solar_system.js': /^vendor\/scripts\/solar_system/
-        'javascripts/astro_data.js': /^vendor\/scripts\/astro/
+        'javascripts/vendor.js': /^vendor(\/|\\)scripts(\/|\\)(?!(solar_system|astro))/
+        'javascripts/solar_system.js': /^vendor(\/|\\)scripts(\/|\\)solar_system/
+        'javascripts/astro_data.js': /^vendor(\/|\\)scripts(\/|\\)astro/
       order:
         # Files in `vendor` directories are compiled before other files
         # even if they aren't specified in order.
