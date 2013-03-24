@@ -16,11 +16,16 @@ class Client:
 
 # process-global set of per-document connected clients
 doc_clients = defaultdict(set)
-doc_events = defaultdict(dict)
+# toggles whether we're in pilot mode
+has_a_pilot = False
 
 
 def take_pilot(conn, data):
+  global has_a_pilot
+  if has_a_pilot:
+    return  # the pilot must relenquish control first
   conn.client.is_pilot = True
+  has_a_pilot = True
   for c in doc_clients[conn.doc]:
     if c.conn is conn:
       continue
@@ -29,7 +34,11 @@ def take_pilot(conn, data):
 
 
 def release_pilot(conn, data):
+  global has_a_pilot
+  if not has_a_pilot or not conn.client.is_pilot:
+    return  # no sense releasing if there isn't one
   conn.client.is_pilot = False
+  has_a_pilot = True
   for c in doc_clients[conn.doc]:
     c.can_broadcast = True
 
@@ -54,9 +63,6 @@ class InteractionHandler(WebSocketHandler):
     self.client = Client(self)
     doc_clients[doc].add(self.client)
 
-    for msg in doc_events[self.doc].itervalues():
-      self.write_message(msg)
-
   def on_special(self, msg):
     data = json.loads(msg)
     special_handlers[data['event']](self, data)
@@ -69,10 +75,6 @@ class InteractionHandler(WebSocketHandler):
     # don't pass it on if we're muted
     if not self.client.can_broadcast:
       return
-
-    # save this message
-    data = json.loads(msg)
-    doc_events[self.doc][data['event']] = msg
 
     # broadcast to all the other clients
     for c in doc_clients[self.doc]:

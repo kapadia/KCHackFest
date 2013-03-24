@@ -457,6 +457,12 @@ THREE.ColladaLoader = function () {
 	skins = [];
 
 	daeScene = parseScene();
+
+  if (daeScene === undefined || daeScene == null) {
+    setLoadMessage("Model loading failed");
+    throw new Error("Unable to load rover model");
+  }
+
 	scene = new THREE.Object3D();
 
 	for ( var i = 0; i < daeScene.nodes.length; i ++ ) {
