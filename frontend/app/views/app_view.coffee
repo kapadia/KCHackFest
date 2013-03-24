@@ -18,3 +18,22 @@ module.exports = class AppView extends View
     @router = new AppRouter()
     CSLE?.Routers?.AppRouter = @router
     @html require 'views/templates/home'
+
+window.is_pilot = false
+window.pilot_clicked = (taking_control) ->
+  window.is_pilot = taking_control
+  app_view = CSLE.Views.AppView
+  hash_to_view =
+    '': app_view.homeView
+    '#/astro-data': app_view.astroData
+    '#/curiosity': app_view.curiosity
+    '#/solar-system': app_view.solarSystem
+  view = hash_to_view[window.location.hash]
+  if taking_control
+    msg = 'take-pilot'
+    label = 'RELEASE'
+  else
+    msg = 'release-pilot'
+    label = 'PILOT'
+  view?.socket?.send(msg, {}, true)
+  document.getElementById('pilot')?.textContent = label

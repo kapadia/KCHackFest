@@ -20,6 +20,14 @@ module.exports = class HomeView extends View
       c.parentNode.removeChild(c)
       delete @cursors[data.uuid]
     )
+    user_count = document.getElementById('user_count')
+    @socket.on('list-users', (data) ->
+      total = 0
+      for page,users of data
+        total += users
+      user_count.textContent = total
+    )
+    setInterval((=> @socket.send('list-users',{}, true)), 500)
     @socket.set_onclose (e) ->
       # reset the mousemove handler
       document.onmousemove = (->)

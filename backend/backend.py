@@ -6,28 +6,44 @@ from tornado.websocket import WebSocketHandler
 
 
 class Client:
-  def __init__(self, conn):
+  def __init__(self, conn, is_pilot=False):
     self.can_broadcast = True
     self.conn = conn
+    self.is_pilot = is_pilot
 
   def send(self, msg):
     self.conn.write_message(msg)
 
 # process-global set of per-document connected clients
 doc_clients = defaultdict(set)
+doc_events = defaultdict(dict)
 
 
 def take_pilot(conn, data):
-  print "%s taking control" % conn
+  conn.client.is_pilot = True
+  for c in doc_clients[conn.doc]:
+    if c.conn is conn:
+      continue
+    c.is_pilot = False
+    c.can_broadcast =False
 
 
 def release_pilot(conn, data):
-  print "%s releasing control" % conn
+  conn.client.is_pilot = False
+  for c in doc_clients[conn.doc]:
+    c.can_broadcast = True
+
+
+def list_users(conn, data):
+  users = dict((k,len(v)) for k,v in doc_clients.iteritems())
+  msg = {'event': 'list-users', 'data': users}
+  conn.write_message(json.dumps(msg))
 
 
 special_handlers = {
     'take-pilot': take_pilot,
     'release-pilot': release_pilot,
+    'list-users': list_users,
 }
 
 
@@ -38,18 +54,25 @@ class InteractionHandler(WebSocketHandler):
     self.client = Client(self)
     doc_clients[doc].add(self.client)
 
+    for msg in doc_events[self.doc].itervalues():
+      self.write_message(msg)
+
   def on_special(self, msg):
     data = json.loads(msg)
-    special_handlers[data['type']](self, data)
+    special_handlers[data['event']](self, data)
 
   def on_message(self, msg):
-    if msg[0] is '!':
+    if msg[0] == u'!':
       self.on_special(msg[1:])
       return
 
     # don't pass it on if we're muted
     if not self.client.can_broadcast:
       return
+
+    # save this message
+    data = json.loads(msg)
+    doc_events[self.doc][data['event']] = msg
 
     # broadcast to all the other clients
     for c in doc_clients[self.doc]:
@@ -60,14 +83,8 @@ class InteractionHandler(WebSocketHandler):
     doc_clients[self.doc].remove(self.client)
 
 
-class DocsHandler(tornado.web.RequestHandler):
-  def get(self):
-    docs = dict((k,{"users": len(v)}) for k,v in doc_clients.iteritems())
-    self.write(json.dumps(docs))
-
 application = tornado.web.Application([
     (r"/docs/(.+)", InteractionHandler),
-    (r"/docs", DocsHandler),
 ])
 
 

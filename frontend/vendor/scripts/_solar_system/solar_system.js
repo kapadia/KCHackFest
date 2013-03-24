@@ -13,6 +13,10 @@ var stats,
 window.controls = controls
 window.gui = gui
 
+function send_camera(conn, camera, target, time) {
+    conn.send('move-camera', {position: camera.position, target: target, time: time})
+}
+
 var PointerLock = (function() {
     var self = {};
     var enabled = false;
@@ -56,8 +60,8 @@ var PointerLock = (function() {
     };
 
     self.addEventListener("mousemove", function(event) {
-	conn.send("delta-mouse-move", {x: event.movementX, y: event.movementY})
 	controls.rotateByDelta(event.movementX, event.movementY)
+	send_camera(conn, camera, camTarget, t)
     })
 
     self.enableLock = function(opts) {
@@ -341,11 +345,9 @@ THREE.OrbitControls = function ( object, domElement ) {
 	    if ( event.button === 0 || event.button === 2 ) {
 		scope.state = STATE.ROTATE;
 		scope.rotateStart.set( event.clientX, event.clientY );
-		conn.send("camera-rotate", {x: event.clientX, y: event.clientY})
 	    } else if ( event.button === 1 ) {
 		scope.state = STATE.ZOOM;
 		scope.zoomStart.set( event.clientX, event.clientY );
-		conn.send("camera-zoom", {x: event.clientX, y: event.clientY})
 	    }
 
 	    document.addEventListener( 'mousemove', onMouseMove, false );
@@ -381,7 +383,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	function onMouseMove(event) {
 	    event.preventDefault();
-	    conn.send('mouse-move', {x: event.clientX, y: event.clientY})
+	    send_camera(conn, camera, camTarget, t);
 	    scope.handleMouseMove(event.clientX, event.clientY)
 	}
 
@@ -392,7 +394,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 	    document.removeEventListener('mouseup', onMouseUp, false);
 
 	    function disable() {
-		conn.send('mouse-up', {x: event.clientX, y: event.clientY})
 		scope.state = STATE.NONE
 	    }
 
@@ -422,7 +423,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 	    }
 
 	    scope.handleMouseWheel(delta)
-	    conn.send('mouse-wheel', {delta: delta})
+
+	    send_camera(conn, camera, camTarget, t)
 	}
 
 	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
@@ -6122,29 +6124,32 @@ function lensFlareUpdateCallback( object ) {
         flare.rotation = 0;
         flare.opacity = 1.0 - heatVisionValue;
     }
-}var Orbit = function( e, material ){
+}var Orbit = function( planet, material ){
 
 	var LOD,
-		axisRez = 40,
-		eph = e;
+		axisRez = 1;
 
 	var axisPoints = [];
 	var spline = [];
 
-	for( var i = 0; i < axisRez; i++ ) {
-		x = ( eph.A * Math.cos( i / axisRez * Math.PI * 2 ) + ( eph.aphelion - eph.A ) );
-		z = ( eph.semiMinor * Math.sin( i / axisRez * Math.PI * 2 ) );
-		axisPoints[i] = new THREE.Vector3( x, 0, z );
-	}
+	// for( var i = 0; i < axisRez; i++ ) {
+	// 	axisPoints[i] = new THREE.Vector3( ss[i+1].position.clone() );
+	// }
 
-	spline =  new THREE.ClosedSplineCurve3( axisPoints );
+
+	// axisPoints.push( new THREE.Vector3( planet.position.clone() ) );
+	// spline =  new THREE.ClosedSplineCurve3( axisPoints );
 	var splineGeo = new THREE.Geometry();
-	var splinePoints = spline.getPoints( axisRez );
+	// var splinePoints = spline.getPoints( axisRez );
 
-	for(var i = 0; i < splinePoints.length; i++){
-		splineGeo.vertices.push(splinePoints[i]);
-	}
+	// for(var i = 0; i < splinePoints.length; i++){
+	// 	splineGeo.vertices.push(splinePoints[i]);
+	// }
 
+	var posVec = new THREE.Vector3();
+	posVec.getPositionFromMatrix( planet.matrixWorld );
+
+	// splineGeo.vertices.push( posVec );
 	LOD = new THREE.Line( splineGeo, material );
 
  return LOD;
@@ -6323,17 +6328,23 @@ function findSemiMinor(){
 function planetsOrbit( time ){
 	for ( var i = 1; i < ss.length; i ++ ) {
     var planet = ss[i];
-		ss[i].orbiting( ephemeris[i], time, ssScale.s );
+		ss[i].orbiting( ephemeris[i], time, ssScale.s * 100 );
+
+		// ss[i].orbit.updateMatrix();
+		// var posVec = new THREE.Vector3();
+		// posVec.getPositionFromMatrix( ss[i].matrixWorld );
+		// ss[i].orbit.geometry.vertices.push(  posVec );
+		// ss[i].orbit.geometry.verticesNeedUpdate = true;
 	}
 }
 
 function setSolarSystemScale(){
 	if ( scaling ){
-	    var sunS = 1392684 * ssScale.sunScale;
+	    var sunS = 1392684 * ssScale.sunScale * .00001;
 	    ss[0].scale.set( sunS, sunS, sunS );
 
 	    for ( var i = 1; i < ss.length; i ++ ) {
-		var planetS = ephemeris[i].size * ssScale.planetScale;
+		var planetS = ephemeris[i].size * ssScale.planetScale * .0001;
 		ss[i].scale.set( planetS, planetS, planetS );
 		// ss[i].orbit.scale.set( ssScale.s, ssScale.s, ssScale.s );
 	    }
@@ -6345,9 +6356,11 @@ function makeSolarSystem(){
 
 	findSemiMinor();
 	ssScale = new solarSystemScale();
-	ssScale.s = 100;
-	ssScale.sunScale = .00002;
-	ssScale.planetScale = .0008;
+
+	ssScale.s = 1;
+	ssScale.sunScale = 1;
+	ssScale.planetScale = 1;
+
 
 	var ss3D = new THREE.Object3D();
 
@@ -6367,7 +6380,7 @@ function makeSolarSystem(){
 		var axisMaterial = new THREE.LineBasicMaterial( {
 			color: 0x202020,
 			opacity: .5,
-			linewidth: .5
+			linewidth: 10
 		});
 
 		ss.push( new Planet( planetMaterial, i ) );
@@ -6375,7 +6388,7 @@ function makeSolarSystem(){
 		ss[i].name = ephemeris[i].name;
 		ss3D.add( ss[i] );
 
-		// ss[i].orbit = new Orbit( ephemeris[i], axisMaterial );
+		// ss[i].orbit = new Orbit( ss[i], axisMaterial );
 		// ss[i].orbit.name = ss[i].name + " Orbit";
 		// ss3D.add( ss[i].orbit );
 
@@ -6383,14 +6396,13 @@ function makeSolarSystem(){
 
 	}
 	return ss3D;
-};var camPosition = function( position, target, time, is_client ){
-	this.tween = function(){
-        if (!is_client) {
-            conn.send('preset-camera-select', {position: position, target: target, time: time});
-        }
+};
 
-		TWEEN.removeAll();
-		camTweener( position, target, time );
+var camPosition = function( position, target, time, is_client ){
+	this.tween = function(){
+	    TWEEN.removeAll();
+	    camTweener(position, target, time);
+	    conn.send('move-camera', {position: position, target: target, delay:time, time:t})
 	};
 	return this;
 }
@@ -6447,6 +6459,7 @@ var VIEW_ANGLE = 45,
 var trajectory;
 
 var time, t;
+window.t = t
 var currentTime = new Date();
 var clock = new THREE.Clock();
 
@@ -6466,14 +6479,6 @@ function setLoadMessage( msg ){
 }
 
 $(document).ready( function() {
-  console.log("READY");
-  // sockets
-  if ('WebSocket' in window){
-    conn = new CSLESocket('solar_system', 'ws://' + window.location.hostname + ':8888');
-  } else {
-    console.log("Websocket is not supported!!");
-  }
-
   conn.on('change-texture', function(data) {
     $.each(ss, function(i, planet) {
       if (planet.name == data['planet']) {
@@ -6488,8 +6493,7 @@ $(document).ready( function() {
   });
   $('html').filedrop({
     //TODO: upload onto server
-    //url: window.location.hostname + ':8888/upload',
-    //paramname: 'lolcat',
+    url: './upload.php',
     drop: function() {
       var planetMaterial = new THREE.MeshLambertMaterial( {
           map: THREE.ImageUtils.loadTexture('./images/solarsystem/sunmap.jpg'),
@@ -6499,12 +6503,12 @@ $(document).ready( function() {
     },
     uploadStarted: function(i, file, len) {
       console.log('started');
-    },  
+    },
     uploadFinished: function(i, file, response, time) {
       console.log('finished');
       conn.send('change-texture', {texture:"./images/solarsystem/sunmap.jpg",
                                    planet:window.INTERSECTED.name});
-    }   
+    }
   });
 
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
@@ -6617,19 +6621,19 @@ function buildGUI(){
 	})
 
     gui.scales = []
-    gui.scales.push(gui.g.add(ssScale, 's', 1, 100 )
+    gui.scales.push(gui.g.add(ssScale, 's', 1, 20 )
 		    .name('SS Scale')
 		    .onChange(function(val){
 			scaling = true;
 			conn.send('ssScale-change', {property: 's', val: val})
 		    }));
-    gui.scales.push(gui.g.add(ssScale, 'sunScale', .00001, .00002 )
+    gui.scales.push(gui.g.add(ssScale, 'sunScale', 1, 20 )
 		    .name('Sun Scale')
 		    .onChange(function(val){
 			scaling = true;
 			conn.send('ssScale-change', {property: 'sunScale', val: val})
 		    }));
-    gui.scales.push(gui.g.add(ssScale, 'planetScale', .0001, .001 )
+    gui.scales.push(gui.g.add(ssScale, 'planetScale', 1, 20 )
 		    .name('Planet Scale')
 		    .onChange(function(val){
 			scaling = true;

@@ -311,18 +311,6 @@ THREE.OrbitControls = function ( object, domElement ) {
     this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
     this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
 
-    conn.on('camera-rotate', function(data){
-	state = STATE.ROTATE;
-	rotateStart.set(data.x, data.y);
-    });
-    conn.on('camera-zoom', function(data) {
-	state = STATE.ZOOM;
-	zoomStart.set(data.x, data.y);
-    });
-    conn.on('mouse-move', function(data) {
-	handleMouseMove(data.x, data.y);
-    });
-
 };
 /**
  * @author Tim Knip / http://www.floorplanner.com/ / tim at floorplanner.com
@@ -5146,13 +5134,6 @@ function setLoadMessage( msg ){
 
 $(document).ready( function() {
 
-    if ('WebSocket' in window){
-        console.log(window.location);
-        conn = new CSLESocket('curiosity', 'ws://' + window.location.hostname + ':8888')
-    } else {
-        console.log("websocket don't work!!");
-    }
-
     if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
     $( '#loadtext' ).show();
@@ -5234,9 +5215,6 @@ function init() {
     document.addEventListener('keydown', keySignaller('keydown', onKeyDown), false);
     document.addEventListener('keyup', keySignaller('keyup', onKeyUp), false);
 
-    conn.on('keydown', onKeyDown)
-    conn.on('keyup', onKeyUp)
-
     window.addEventListener( 'resize', onWindowResize, false );
 
 }
@@ -5286,10 +5264,6 @@ function buildGUI(){
         four: new CAMTWEEN( { x:-5, y:3, z:-2 }, { x:0, y:0, z:0 }, 1, false )
     };
 
-    conn.on('preset-camera-select', function(data) {
-	(new CAMTWEEN( data.position, data.target, data.time, true )).tween();
-    });
-
     var gui = new dat.GUI();
 
     // gui.add( rover.dt.L.steering[0].rotation, 'y', ( -45 * toRadians ), 0 )
@@ -5303,55 +5277,36 @@ function buildGUI(){
     var armFolder = gui.addFolder( 'Arm Controls' );
     armFolder.open();
 
-    // XXX this part could use some factoring
-    var yDisplay = armFolder.add( rover.arm.rotation, 'y', ( -90 * toRadians ), 0 )
+    window.armDisplays = {};
+    armDisplays.main = armFolder.add( rover.arm.rotation, 'y', ( -90 * toRadians ), 0 )
         .name('Arm').onChange(function(val) {
-            conn.send('y-change', {val:val});
+            conn.send('arm-change', {subpart:'main',property:'y',val:val});
 	});
-    conn.on('y-change', function(data) {
-        rover.arm.rotation.y = data.val;
-        yDisplay.object.y = data.val;
-        yDisplay.updateDisplay();
+    conn.on('arm-change', function(data) {
+        var part = data.subpart == 'main' ? rover.arm : rover.arm[data.subpart]
+        part.rotation[data.property] = data.val;
+        armDisplays[data.subpart].object[data.property] = data.val;
+        armDisplays[data.subpart].updateDisplay();
     });
-    var xShoulderDisplay = armFolder.add( rover.arm.shoulder.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
+    armDisplays.shoulder = armFolder.add( rover.arm.shoulder.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
         .name('Arm.Shoulder').onChange(function(val) {
-            conn.send('x-shoulder-change', {val: val});
+            conn.send('arm-change', {subpart:'shoulder',property:'x',val:val});
         });
-    conn.on('x-shoulder-change', function(data) {
-        rover.arm.shoulder.rotation.x = data.val;
-        xShoulderDisplay.object.x = data.val;
-        xShoulderDisplay.updateDisplay();
-    });
-    var xElbowDisplay = armFolder.add( rover.arm.elbow.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
+    armDisplays.elbow = armFolder.add( rover.arm.elbow.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
         .name('Arm.Elbow').onChange(function(val) {
-            conn.send('x-elbow-change', {val: val});
+            conn.send('arm-change', {subpart:'elbow',property:'x',val: val});
         });
-    conn.on('x-elbow-change', function(data) {
-        rover.arm.elbow.rotation.x = data.val;
-        xElbowDisplay.object.x = data.val;
-        xElbowDisplay.updateDisplay();
-    });
-    var xWristDisplay = armFolder.add( rover.arm.wrist.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
+    armDisplays.wrist = armFolder.add( rover.arm.wrist.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
         .name('Arm.Wrist').onChange(function(val) {
-            conn.send('x-wrist-change', {val: val});
+            conn.send('arm-change', {subpart:'wrist',property:'x',val: val});
         });
-    conn.on('x-wrist-change', function(data) {
-        rover.arm.wrist.rotation.x = data.val;
-        xWristDisplay.object.x = data.val;
-        xWristDisplay.updateDisplay();
-    });
-    var yHandDisplay = armFolder.add( rover.arm.hand.rotation, 'y', ( -90 * toRadians ), ( 90 * toRadians ) )
+    armDisplays.hand = armFolder.add( rover.arm.hand.rotation, 'y', ( -90 * toRadians ), ( 90 * toRadians ) )
         .name('Arm.Hand').onChange(function(val) {
-            conn.send('y-hand-change', {val: val});
+            conn.send('arm-change', {subpart:'hand',property:'y',val: val});
         });
-    conn.on('y-hand-change', function(data) {
-        rover.arm.hand.rotation.y = data.val;
-        yHandDisplay.object.y = data.val;
-        yHandDisplay.updateDisplay();
-    });
 
     var mastFolder = gui.addFolder( 'Mast Controls' );
-    var mastDisplays = {};
+    window.mastDisplays = {};
     mastFolder.open();
 
     mastDisplays.main = mastFolder.add( rover.mast.rotation, 'z', ( -90 * toRadians ), 0 )
@@ -5366,12 +5321,6 @@ function buildGUI(){
         .name('Mast.Head').onChange(function(val) {
             conn.send('mast-change', {subpart: 'head', property: 'x', val: val});
         });
-    conn.on('mast-change', function(data) {
-        var part = data.subpart === 'main' ? rover.mast : rover.mast[data.subpart];
-        part.rotation[data.property] = data.val;
-        mastDisplays[data.subpart].object[data.property] = data.val;
-        mastDisplays[data.subpart].updateDisplay();
-    });
 
     var camFolder = gui.addFolder( 'Camera Positions' );
     camFolder.open();
