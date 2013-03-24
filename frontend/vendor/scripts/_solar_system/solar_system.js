@@ -6512,12 +6512,12 @@ $(document).ready( function() {
     },
     uploadStarted: function(i, file, len) {
       console.log('started');
-    },  
+    },
     uploadFinished: function(i, file, response, time) {
       console.log('finished');
       conn.send('change-texture', {texture:"./images/solarsystem/sunmap.jpg",
                                    planet:window.INTERSECTED.name});
-    }   
+    }
   });
 
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
@@ -6629,33 +6629,20 @@ function buildGUI(){
 	    conn.send('multiplier-change', {val: val})
 	})
 
-<<<<<<< HEAD
     gui.scales = []
-    gui.scales.push(gui.g.add(ssScale, 's', 1, 100 )
-=======
-        var scales = []
-	scales.push(gui.add(ssScale, 's', 1, 20 )
->>>>>>> planetary gui scales
+    gui.scales.push(gui.g.add(ssScale, 's', 1, 20 )
 		    .name('SS Scale')
 		    .onChange(function(val){
 			scaling = true;
 			conn.send('ssScale-change', {property: 's', val: val})
 		    }));
-<<<<<<< HEAD
-    gui.scales.push(gui.g.add(ssScale, 'sunScale', .00001, .00002 )
-=======
-        scales.push(gui.add(ssScale, 'sunScale', 1, 20 )
->>>>>>> planetary gui scales
+    gui.scales.push(gui.g.add(ssScale, 'sunScale', 1, 20 )
 		    .name('Sun Scale')
 		    .onChange(function(val){
 			scaling = true;
 			conn.send('ssScale-change', {property: 'sunScale', val: val})
 		    }));
-<<<<<<< HEAD
-    gui.scales.push(gui.g.add(ssScale, 'planetScale', .0001, .001 )
-=======
-        scales.push(gui.add(ssScale, 'planetScale', 1, 20 )
->>>>>>> planetary gui scales
+    gui.scales.push(gui.g.add(ssScale, 'planetScale', 1, 20 )
 		    .name('Planet Scale')
 		    .onChange(function(val){
 			scaling = true;
