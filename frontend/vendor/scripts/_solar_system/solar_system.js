@@ -6122,29 +6122,32 @@ function lensFlareUpdateCallback( object ) {
         flare.rotation = 0;
         flare.opacity = 1.0 - heatVisionValue;
     }
-}var Orbit = function( e, material ){
+}var Orbit = function( planet, material ){
 
 	var LOD,
-		axisRez = 40,
-		eph = e;
+		axisRez = 1;
 
 	var axisPoints = [];
 	var spline = [];
 
-	for( var i = 0; i < axisRez; i++ ) {
-		x = ( eph.A * Math.cos( i / axisRez * Math.PI * 2 ) + ( eph.aphelion - eph.A ) );
-		z = ( eph.semiMinor * Math.sin( i / axisRez * Math.PI * 2 ) );
-		axisPoints[i] = new THREE.Vector3( x, 0, z );
-	}
+	// for( var i = 0; i < axisRez; i++ ) {
+	// 	axisPoints[i] = new THREE.Vector3( ss[i+1].position.clone() );
+	// }
 
-	spline =  new THREE.ClosedSplineCurve3( axisPoints );
+
+	// axisPoints.push( new THREE.Vector3( planet.position.clone() ) );
+	// spline =  new THREE.ClosedSplineCurve3( axisPoints );
 	var splineGeo = new THREE.Geometry();
-	var splinePoints = spline.getPoints( axisRez );
+	// var splinePoints = spline.getPoints( axisRez );
 
-	for(var i = 0; i < splinePoints.length; i++){
-		splineGeo.vertices.push(splinePoints[i]);
-	}
+	// for(var i = 0; i < splinePoints.length; i++){
+	// 	splineGeo.vertices.push(splinePoints[i]);
+	// }
 
+	var posVec = new THREE.Vector3();
+	posVec.getPositionFromMatrix( planet.matrixWorld );
+
+	// splineGeo.vertices.push( posVec );
 	LOD = new THREE.Line( splineGeo, material );
 
  return LOD;
@@ -6323,17 +6326,23 @@ function findSemiMinor(){
 function planetsOrbit( time ){
 	for ( var i = 1; i < ss.length; i ++ ) {
     var planet = ss[i];
-		ss[i].orbiting( ephemeris[i], time, ssScale.s );
+		ss[i].orbiting( ephemeris[i], time, ssScale.s * 100 );
+
+		// ss[i].orbit.updateMatrix();
+		// var posVec = new THREE.Vector3();
+		// posVec.getPositionFromMatrix( ss[i].matrixWorld );
+		// ss[i].orbit.geometry.vertices.push(  posVec );
+		// ss[i].orbit.geometry.verticesNeedUpdate = true;
 	}
 }
 
 function setSolarSystemScale(){
 	if ( scaling ){
-	    var sunS = 1392684 * ssScale.sunScale;
+	    var sunS = 1392684 * ssScale.sunScale * .00001;
 	    ss[0].scale.set( sunS, sunS, sunS );
 
 	    for ( var i = 1; i < ss.length; i ++ ) {
-		var planetS = ephemeris[i].size * ssScale.planetScale;
+		var planetS = ephemeris[i].size * ssScale.planetScale * .0001;
 		ss[i].scale.set( planetS, planetS, planetS );
 		// ss[i].orbit.scale.set( ssScale.s, ssScale.s, ssScale.s );
 	    }
@@ -6345,9 +6354,11 @@ function makeSolarSystem(){
 
 	findSemiMinor();
 	ssScale = new solarSystemScale();
-	ssScale.s = 100;
-	ssScale.sunScale = .00002;
-	ssScale.planetScale = .0008;
+
+	ssScale.s = 1;
+	ssScale.sunScale = 1;
+	ssScale.planetScale = 1;
+
 
 	var ss3D = new THREE.Object3D();
 
@@ -6367,7 +6378,7 @@ function makeSolarSystem(){
 		var axisMaterial = new THREE.LineBasicMaterial( {
 			color: 0x202020,
 			opacity: .5,
-			linewidth: .5
+			linewidth: 10
 		});
 
 		ss.push( new Planet( planetMaterial, i ) );
@@ -6375,7 +6386,7 @@ function makeSolarSystem(){
 		ss[i].name = ephemeris[i].name;
 		ss3D.add( ss[i] );
 
-		// ss[i].orbit = new Orbit( ephemeris[i], axisMaterial );
+		// ss[i].orbit = new Orbit( ss[i], axisMaterial );
 		// ss[i].orbit.name = ss[i].name + " Orbit";
 		// ss3D.add( ss[i].orbit );
 
@@ -6616,20 +6627,33 @@ function buildGUI(){
 	    conn.send('multiplier-change', {val: val})
 	})
 
+<<<<<<< HEAD
     gui.scales = []
     gui.scales.push(gui.g.add(ssScale, 's', 1, 100 )
+=======
+        var scales = []
+	scales.push(gui.add(ssScale, 's', 1, 20 )
+>>>>>>> planetary gui scales
 		    .name('SS Scale')
 		    .onChange(function(val){
 			scaling = true;
 			conn.send('ssScale-change', {property: 's', val: val})
 		    }));
+<<<<<<< HEAD
     gui.scales.push(gui.g.add(ssScale, 'sunScale', .00001, .00002 )
+=======
+        scales.push(gui.add(ssScale, 'sunScale', 1, 20 )
+>>>>>>> planetary gui scales
 		    .name('Sun Scale')
 		    .onChange(function(val){
 			scaling = true;
 			conn.send('ssScale-change', {property: 'sunScale', val: val})
 		    }));
+<<<<<<< HEAD
     gui.scales.push(gui.g.add(ssScale, 'planetScale', .0001, .001 )
+=======
+        scales.push(gui.add(ssScale, 'planetScale', 1, 20 )
+>>>>>>> planetary gui scales
 		    .name('Planet Scale')
 		    .onChange(function(val){
 			scaling = true;
