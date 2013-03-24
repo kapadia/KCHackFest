@@ -62,17 +62,11 @@ module.exports = class AstroDataView extends View
         .append("tr")
       
       cells = rows.selectAll("td")
-        .data( (d) ->
-          console.log d
-          return d
-        )
+        .data( (d) -> d)
         .enter()
         .append("td")
-          .text((d) ->
-            console.log d
-            d
-          )
-
+          .text((d) -> d)
+          
     # Read the data (spawns worker)
     dataunit.getFrameAsync(0, @createVisualization, opts)
   
@@ -170,7 +164,6 @@ module.exports = class AstroDataView extends View
     @drawHistogram(band, min, max, histogram)
   
   drawHistogram: (band, min, max, histogram) =>
-    console.log band, min, max, histogram
     margin =
       top: 0
       right: 20
