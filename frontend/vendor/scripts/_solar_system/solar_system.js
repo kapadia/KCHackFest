@@ -5883,7 +5883,7 @@ var ephemeris = [
 	{
 		name: 'Sun',
 		texture: './images/solarsystem/sunmap.jpg',
-		size: 1392684
+		size: 1392684,
 	},{
 		name: 'Mercury',
 		texture: './images/solarsystem/mercurymap.jpg',
@@ -6294,7 +6294,7 @@ var Sun = function(){
 	// });
 
 	var sun = new Planet( sunMaterial );
-	sun.name = "The Sun";
+	sun.name = "Sun";
 
 	/********************************
 	LENS FLARE
@@ -6491,17 +6491,24 @@ $(document).ready( function() {
       console.log('Started uploading' + file.name);
     },
     uploadFinished: function(i, file, response, time) {
-      var vector = new THREE.Vector3( window.mouse.x, window.mouse.y, 1 );
-      var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
-      var intersects = raycaster.intersectObjects( solarSystem.children );
-			var INTERSECTED = intersects[ 0 ].object;
-      conn.send('change-texture', {texture:"./images/solarsystem/" + file.name,
-                                   planet:INTERSECTED.name});
-      var planetMaterial = new THREE.MeshLambertMaterial( {
-          map: THREE.ImageUtils.loadTexture("./images/solarsystem/" + file.name),
-          overdraw: true
-      });
+	var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+	var vector = new THREE.Vector3( window.mouse.x, window.mouse.y, 1 );
+	var intersects = raycaster.intersectObjects( solarSystem.children );
+	var INTERSECTED = intersects[ 0 ].object;
+	var texture = "./images/solarsystem/" + file.name
+	var planet_name = INTERSECTED.name
+
+	conn.send('change-texture', {texture:texture,
+                                   planet:planet_name});
+
+	var planetMaterial = new THREE.MeshLambertMaterial( {
+            map: THREE.ImageUtils.loadTexture(texture),
+            overdraw: true
+	});
+
       INTERSECTED.material = planetMaterial;
+      window.texture_updates[planet_name].updates++
+      window.texture_updates[planet_name].texture = texture
       console.log('Finished uploading' + file.name);
     }
   });

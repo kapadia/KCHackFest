@@ -10,26 +10,45 @@ module.exports = class SolarSystemView extends View
     @socket = @initSocket()
     @
 
-  initSocket: ->
+  updateTexture: (planet_name, texture_name) ->
+    for planet in ss
+      if planet.name is planet_name
+        planetMaterial = new THREE.MeshLambertMaterial {
+          map: THREE.ImageUtils.loadTexture(texture_name),
+          overdraw: true
+        }
+        planet.material = planetMaterial
+        return planet
+
+  initSocket: =>
     conn = new CSLESocket('solar_system', "ws://#{window.location.hostname}:8888")
+
+    textures = {}
+    for planet in ephemeris
+      textures[planet.name] = {}
+      textures[planet.name].updates = 0
+      textures[planet.name].texture = planet.texture
 
     conn.on('move-camera', (data) ->
       TWEEN.removeAll();
       delay = data.delay || 0
       camTweener(data.position, data.target, delay)
       window.t = data.time)
-    conn.on('change-texture', (data) ->
-      for planet in ss
-        if planet.name is data['planet']
-          console.log('Changed ' + planet.name + ' texture to ' + data['texture'])
-          planetMaterial = new THREE.MeshLambertMaterial {
-              map: THREE.ImageUtils.loadTexture(data['texture']),
-              overdraw: true
-          }
-          planet.material = planetMaterial)
+
+    conn.on('change-texture', (data) =>
+      planet = @updateTexture(data.planet, data.texture)
+      textures[planet.name].updates++)
+
+    conn.on('texture-broadcast', (data) =>
+      for name,planet of data
+        if planet.updates > textures[name].updates
+          @updateTexture(name, planet.texture)
+          textures[name] = planet)
+
     conn.on('multiplier-change', (data) ->
       window.gui.mult.object['multiplier'] = data.val
       window.gui.mult.updateDisplay())
+
     conn.on('ssScale-change', (data) ->
       window.ssScale[data.property] = data.val
       window.scaling = true
@@ -39,4 +58,8 @@ module.exports = class SolarSystemView extends View
     conn.on 'pilot-changed', (pilot_disabled) ->
       document.getElementById('pilot')?.disabled = pilot_disabled
 
+    setInterval((() ->
+      conn.send('texture-broadcast', textures)), 500)
+
+    window.texture_updates = textures
     return window.conn = conn
