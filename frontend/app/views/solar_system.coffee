@@ -8,6 +8,7 @@ module.exports = class SolarSystemView extends View
   render: =>
     @html @template
     @socket = @initSocket()
+    setTimeout((=>@socket.send 'can-i-pilot', {}, true), 500)
     @
 
   updateTexture: (planet_name, texture_name) ->

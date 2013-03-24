@@ -12,7 +12,8 @@ class Client:
     self.is_pilot = is_pilot
 
   def send(self, msg):
-    self.conn.write_message(msg)
+    if self.conn:
+      self.conn.write_message(msg)
 
 # process-global set of per-document connected clients
 doc_clients = defaultdict(set)
@@ -43,6 +44,11 @@ def release_pilot(conn, data):
     c.send(json.dumps({'event':'pilot-changed','data':False}))
 
 
+def can_i_pilot(conn, data):
+  i_cannot = doc_pilots[conn.doc] and not conn.client.is_pilot
+  conn.write_message(json.dumps({'event':'pilot-changed','data':i_cannot}))
+
+
 def list_users(conn, data):
   users = dict((k,len(v)) for k,v in doc_clients.iteritems())
   msg = {'event': 'list-users', 'data': users}
@@ -52,6 +58,7 @@ def list_users(conn, data):
 special_handlers = {
     'take-pilot': take_pilot,
     'release-pilot': release_pilot,
+    'can-i-pilot': can_i_pilot,
     'list-users': list_users,
 }
 

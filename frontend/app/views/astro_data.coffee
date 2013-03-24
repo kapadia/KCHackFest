@@ -35,6 +35,7 @@ module.exports = class AstroDataView extends View
     @imageEl = $("article .image")
     
     @html @overlay
+    setTimeout((=>@socket.send 'can-i-pilot', {}, true), 500)
     
     @
   

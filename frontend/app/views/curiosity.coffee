@@ -7,6 +7,7 @@ module.exports = class CuriosityView extends View
   render: =>
     @html @template
     @socket = @initSocket()
+    setTimeout((=>@socket.send 'can-i-pilot', {}, true), 500)
     @
   initSocket: ->
     conn = new CSLESocket('curiosity', 'ws://' + window.location.hostname + ':8888')
