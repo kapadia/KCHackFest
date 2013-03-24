@@ -21,10 +21,10 @@ module.exports = class CuriosityView extends View
       displays.mast[data.subpart].object[data.property] = data.val
       displays.mast[data.subpart].updateDisplay()
     conn.on 'camera-rotate', (data) ->
-      state = STATE.ROTATE
-      rotateStart.set(data.x, data.y)
+      window.roverGlobals.state = STATE.ROTATE
+      roverGlobals.rotateStart.set(data.x, data.y)
     conn.on 'camera-zoom', (data) ->
-      state = STATE.ZOOM
+      window.roverGlobals.state = STATE.ZOOM
       zoomStart.set(data.x, data.y)
     conn.on 'mouse-move', (data) ->
       handleMouseMove(data.x, data.y)

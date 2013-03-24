@@ -7,6 +7,8 @@
 
 THREE.OrbitControls = function ( object, domElement ) {
 
+	window.roverGlobals = {} // haaack
+
     THREE.EventDispatcher.call( this );
 
     this.object = object;
@@ -38,7 +40,7 @@ THREE.OrbitControls = function ( object, domElement ) {
     var EPS = 0.000001;
     var PIXELS_PER_ROUND = 1800;
 
-    var rotateStart = new THREE.Vector2();
+    roverGlobals.rotateStart = new THREE.Vector2();
     var rotateEnd = new THREE.Vector2();
     var rotateDelta = new THREE.Vector2();
 
@@ -52,8 +54,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
     var lastPosition = new THREE.Vector3();
 
-    var STATE = { NONE : -1, ROTATE : 0, ZOOM : 1 };
-    var state = STATE.NONE;
+    window.STATE = { NONE : -1, ROTATE : 0, ZOOM : 1 };
+    roverGlobals.state = STATE.NONE;
 
     // events
 
@@ -200,7 +202,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
     }
 
-    function onMouseDown( event ) {
+    function onMouseDown( event, is_client ) {
 
 	if ( !scope.userRotate ) return;
 
@@ -208,15 +210,15 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	if ( event.button === 0 || event.button === 2 ) {
 
-	    state = STATE.ROTATE;
+	    roverGlobals.state = STATE.ROTATE;
 
-	    rotateStart.set( event.clientX, event.clientY );
+	    roverGlobals.rotateStart.set( event.clientX, event.clientY );
 
 	    conn.send("camera-rotate", {x: event.clientX, y: event.clientY})
 
 	} else if ( event.button === 1 ) {
 
-	    state = STATE.ZOOM;
+	    roverGlobals.state = STATE.ZOOM;
 
 	    zoomStart.set( event.clientX, event.clientY );
 
@@ -238,19 +240,19 @@ THREE.OrbitControls = function ( object, domElement ) {
 
     }
 
-    function handleMouseMove(x, y) {
+    window.handleMouseMove = function (x, y) {
 
-	if ( state === STATE.ROTATE ) {
+	if ( roverGlobals.state === STATE.ROTATE ) {
 
 	    rotateEnd.set(x, y);
-	    rotateDelta.subVectors( rotateEnd, rotateStart );
+	    rotateDelta.subVectors( rotateEnd, roverGlobals.rotateStart );
 
 	    scope.rotateLeft( 2 * Math.PI * rotateDelta.x / PIXELS_PER_ROUND * scope.userRotateSpeed );
 	    scope.rotateUp( 2 * Math.PI * rotateDelta.y / PIXELS_PER_ROUND * scope.userRotateSpeed );
 
-	    rotateStart.copy( rotateEnd );
+	    roverGlobals.rotateStart.copy( rotateEnd );
 
-	} else if ( state === STATE.ZOOM ) {
+	} else if ( roverGlobals.state === STATE.ZOOM ) {
 
 	    zoomEnd.set(x, y);
 	    zoomDelta.subVectors( zoomEnd, zoomStart );
@@ -267,14 +269,16 @@ THREE.OrbitControls = function ( object, domElement ) {
 
     }
 
-    function onMouseUp( event ) {
+    function onMouseUp( event, is_client ) {
 
 	if ( ! scope.userRotate ) return;
+
+	if (!is_client) conn.send('mouse-up', {x: event.clientX, y: event.clientY});
 
 	document.removeEventListener( 'mousemove', onMouseMove, false );
 	document.removeEventListener( 'mouseup', onMouseUp, false );
 
-	state = STATE.NONE;
+	roverGlobals.state = STATE.NONE;
 
     }
 
