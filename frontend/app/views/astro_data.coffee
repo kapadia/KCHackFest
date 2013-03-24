@@ -31,8 +31,9 @@ module.exports = class AstroDataView extends View
     @rChannel = $('[data-type="r"]')
     @gChannel = $('[data-type="g"]')
     @bChannel = $('[data-type="b"]')
-    
+    @svg = $('svg.annotation')
     @html @overlay
+    
     @
   
   # Get remote data (should only be called once)
@@ -142,6 +143,8 @@ module.exports = class AstroDataView extends View
         @webfits.yOffset = data.yOffset
         @webfits.draw()
         
+        @marker.setAttribute("transform", "translate(#{data.xMarker}, #{data.yMarker})")
+        
         # Update the info panel
         @updateInfo(data.x, data.y)
       )
@@ -160,13 +163,40 @@ module.exports = class AstroDataView extends View
         @webfits.setAlpha(data.alpha)
         @sliders['alpha'].value = data.alpha
       )
-      
+      @socket.on('pilot-changed', (pilot_disabled) ->
+        document.getElementById('pilot')?.disabled = pilot_disabled
+      )
       @socket.set_onclose (e) =>
         @socket_active = false
+      
+      # Create a nice little SVG circle
+      @marker = document.createElementNS('http://www.w3.org/2000/svg', "circle")
+      @marker.setAttribute("r", 10)
+      @marker.setAttribute("fill-opacity", 0)
+      @marker.setAttribute("stroke", '#FAFAFA')
+      @marker.setAttribute("stroke-width", 1)
+      @marker.setAttribute("transform", "translate(#{0}, #{0})")
+      @svg[0].appendChild(@marker)
+      
+      # Propagate events from svg to webfits canvas
+      @svg[0].onmousedown = (e) =>
+        @webfits.canvas.onmousedown(e)
+      @svg[0].onmouseup = (e) =>
+        @webfits.canvas.onmouseup(e)
+      @svg[0].onmousemove = (e) =>
+        @webfits.canvas.onmousemove(e)
+      @svg[0].onmouseout = (e) =>
+        @webfits.canvas.onmouseout(e)
+      @svg[0].onmouseover = (e) =>
+        @webfits.canvas.onmouseover(e)
+      @svg[0].addEventListener('mousewheel', @wheelHandler, false)
+      @svg[0].addEventListener('DOMMouseScroll', @wheelHandler, false)
 
       # Setup mouse callbacks for webfits
       callbacks =
-        onmousemove: (x, y) =>
+        onmousemove: (x, y, opts, e) =>
+          # Update the marker position
+          @marker.setAttribute("transform", "translate(#{e.offsetX}, #{e.offsetY})")
           
           @updateInfo(x, y)
           
@@ -176,12 +206,17 @@ module.exports = class AstroDataView extends View
               y: y
               xOffset: @webfits.xOffset
               yOffset: @webfits.yOffset
+              xMarker: e.offsetX
+              yMarker: e.offsetY
         onzoom: =>
           if @socket_active
             @socket.send 'zoom',
               z: @webfits.zoom
 
       @webfits.setupControls(callbacks)
+  
+  wheelHandler: (e) =>
+    @webfits.wheelHandler(e)
   
   updateInfo: (x, y) =>
     sky = @wcs.pixelToCoordinate([x, y])

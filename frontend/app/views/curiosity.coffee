@@ -35,4 +35,6 @@ module.exports = class CuriosityView extends View
       displays.arm[data.subpart].updateDisplay()
     conn.on 'toggle-dance', (name) ->
       window.dances[name](true)
+    conn.on 'pilot-changed', (pilot_disabled) ->
+      document.getElementById('pilot')?.disabled = pilot_disabled
     window.conn = conn
