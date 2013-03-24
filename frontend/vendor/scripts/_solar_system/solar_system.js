@@ -6481,6 +6481,7 @@ $(document).ready( function() {
   $('html').filedrop({
     //TODO: upload onto server
     url: './upload.php',
+    paramname: 'file',
     drop: function() {
       var planetMaterial = new THREE.MeshLambertMaterial( {
           map: THREE.ImageUtils.loadTexture('./images/solarsystem/sunmap.jpg'),
@@ -6493,6 +6494,7 @@ $(document).ready( function() {
     },
     uploadFinished: function(i, file, response, time) {
       console.log('finished');
+      console.log(response);
       conn.send('change-texture', {texture:"./images/solarsystem/sunmap.jpg",
                                    planet:window.INTERSECTED.name});
     }
