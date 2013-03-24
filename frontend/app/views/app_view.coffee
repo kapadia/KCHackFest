@@ -6,11 +6,11 @@ SolarSystemView = require 'views/solar_system'
 
 module.exports = class AppView extends View
   el: 'body.application'
-  socket: new CSLESocket('home', "ws://#{window.location.hostname}:8888")
-  cursors: {}  # map from id -> DOM image
-  uuid: ((Math.random()*16|0).toString(16) for [0..20]).join ''
 
   initialize: ->
+    @socket = new CSLESocket('home', "ws://#{window.location.hostname}:8888")
+    @uuid = ((Math.random()*16|0).toString(16) for [0..20]).join ''
+    @cursors = {}  # map from id -> DOM image
     @homeView = new HomeView()
     @astroData = new AstroDataView()
     @solarSystem = new SolarSystemView()
