@@ -6,9 +6,10 @@ from tornado.websocket import WebSocketHandler
 
 
 class Client:
-  def __init__(self, conn):
+  def __init__(self, conn, is_pilot=False):
     self.can_broadcast = True
     self.conn = conn
+    self.is_pilot = is_pilot
 
   def send(self, msg):
     self.conn.write_message(msg)
@@ -18,11 +19,18 @@ doc_clients = defaultdict(set)
 
 
 def take_pilot(conn, data):
-  print "%s taking control" % conn
+  conn.client.is_pilot = True
+  for c in doc_clients[conn.doc]:
+    if c.conn is conn:
+      continue
+    c.is_pilot = False
+    c.can_broadcast =False
 
 
 def release_pilot(conn, data):
-  print "%s releasing control" % conn
+  conn.client.is_pilot = False
+  for c in doc_clients[conn.doc]:
+    c.can_broadcast = True
 
 
 special_handlers = {
@@ -40,10 +48,10 @@ class InteractionHandler(WebSocketHandler):
 
   def on_special(self, msg):
     data = json.loads(msg)
-    special_handlers[data['type']](self, data)
+    special_handlers[data['event']](self, data)
 
   def on_message(self, msg):
-    if msg[0] is '!':
+    if msg[0] == u'!':
       self.on_special(msg[1:])
       return
 
