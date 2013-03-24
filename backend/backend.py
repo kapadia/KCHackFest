@@ -6,8 +6,8 @@ from tornado.websocket import WebSocketHandler
 
 
 class Client:
-  def __init__(self, conn, is_pilot=False):
-    self.can_broadcast = True
+  def __init__(self, conn, is_pilot=False, can_broadcast=True):
+    self.can_broadcast = can_broadcast
     self.conn = conn
     self.is_pilot = is_pilot
 
@@ -17,15 +17,14 @@ class Client:
 # process-global set of per-document connected clients
 doc_clients = defaultdict(set)
 # toggles whether we're in pilot mode
-has_a_pilot = False
+doc_pilots = defaultdict(bool)
 
 
 def take_pilot(conn, data):
-  global has_a_pilot
-  if has_a_pilot:
+  if doc_pilots[conn.doc]:
     return  # the pilot must relenquish control first
   conn.client.is_pilot = True
-  has_a_pilot = True
+  doc_pilots[conn.doc] = True
   for c in doc_clients[conn.doc]:
     if c.conn is conn:
       continue
@@ -34,11 +33,10 @@ def take_pilot(conn, data):
 
 
 def release_pilot(conn, data):
-  global has_a_pilot
-  if not has_a_pilot or not conn.client.is_pilot:
+  if not doc_pilots[conn.doc] or not conn.client.is_pilot:
     return  # no sense releasing if there isn't one
   conn.client.is_pilot = False
-  has_a_pilot = True
+  doc_pilots[conn.doc] = False
   for c in doc_clients[conn.doc]:
     c.can_broadcast = True
 
@@ -60,7 +58,7 @@ class InteractionHandler(WebSocketHandler):
   '''Handles all websocket connections and messages'''
   def open(self, doc):
     self.doc = doc
-    self.client = Client(self)
+    self.client = Client(self, can_broadcast=(not doc_pilots[doc]))
     doc_clients[doc].add(self.client)
 
   def on_special(self, msg):
@@ -82,6 +80,7 @@ class InteractionHandler(WebSocketHandler):
         c.send(msg)
 
   def on_close(self):
+    release_pilot(self, None)
     doc_clients[self.doc].remove(self.client)
 
 

@@ -5283,8 +5283,8 @@ function buildGUI(){
     var armFolder = gui.addFolder( 'Arm Controls' );
     armFolder.open();
 
-    window.armDisplays = {};
-    armDisplays.main = armFolder.add( rover.arm.rotation, 'y', ( -90 * toRadians ), 0 )
+    window.displays = {arm:{},mast:{}};
+    displays.arm.main = armFolder.add( rover.arm.rotation, 'y', ( -90 * toRadians ), 0 )
         .name('Arm').onChange(function(val) {
             conn.send('arm-change', {subpart:'main',property:'y',val:val});
 	});
@@ -5294,36 +5294,35 @@ function buildGUI(){
         armDisplays[data.subpart].object[data.property] = data.val;
         armDisplays[data.subpart].updateDisplay();
     });
-    armDisplays.shoulder = armFolder.add( rover.arm.shoulder.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
+    displays.arm.shoulder = armFolder.add( rover.arm.shoulder.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
         .name('Arm.Shoulder').onChange(function(val) {
             conn.send('arm-change', {subpart:'shoulder',property:'x',val:val});
         });
-    armDisplays.elbow = armFolder.add( rover.arm.elbow.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
+    displays.arm.elbow = armFolder.add( rover.arm.elbow.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
         .name('Arm.Elbow').onChange(function(val) {
             conn.send('arm-change', {subpart:'elbow',property:'x',val: val});
         });
-    armDisplays.wrist = armFolder.add( rover.arm.wrist.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
+    displays.arm.wrist = armFolder.add( rover.arm.wrist.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
         .name('Arm.Wrist').onChange(function(val) {
             conn.send('arm-change', {subpart:'wrist',property:'x',val: val});
         });
-    armDisplays.hand = armFolder.add( rover.arm.hand.rotation, 'y', ( -90 * toRadians ), ( 90 * toRadians ) )
+    displays.arm.hand = armFolder.add( rover.arm.hand.rotation, 'y', ( -90 * toRadians ), ( 90 * toRadians ) )
         .name('Arm.Hand').onChange(function(val) {
             conn.send('arm-change', {subpart:'hand',property:'y',val: val});
         });
 
     var mastFolder = gui.addFolder( 'Mast Controls' );
-    window.mastDisplays = {};
     mastFolder.open();
 
-    mastDisplays.main = mastFolder.add( rover.mast.rotation, 'z', ( -90 * toRadians ), 0 )
+    displays.mast.main = mastFolder.add( rover.mast.rotation, 'z', ( -90 * toRadians ), 0 )
         .name('Mast').onChange(function(val) {
             conn.send('mast-change', {subpart: 'main', property: 'z', val: val});
         });
-    mastDisplays.neck = mastFolder.add( rover.mast.neck.rotation, 'y', ( -90 * toRadians ), ( 90 * toRadians ) )
+    displays.mast.neck = mastFolder.add( rover.mast.neck.rotation, 'y', ( -90 * toRadians ), ( 90 * toRadians ) )
         .name('Mast.Neck').onChange(function(val) {
-            conn.send('mast-change', {subpart: 'neck', property: 'z', val: val});
+            conn.send('mast-change', {subpart: 'neck', property: 'y', val: val});
         });
-    mastDisplays.head = mastFolder.add( rover.mast.head.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
+    displays.mast.head = mastFolder.add( rover.mast.head.rotation, 'x', ( -90 * toRadians ), ( 90 * toRadians ) )
         .name('Mast.Head').onChange(function(val) {
             conn.send('mast-change', {subpart: 'head', property: 'x', val: val});
         });
@@ -5334,7 +5333,139 @@ function buildGUI(){
     camFolder.add( camTweens.two, 'tween' ).name( 'Camera Two' );
     camFolder.add( camTweens.three, 'tween' ).name( 'Camera Three' );
     camFolder.add( camTweens.four, 'tween' ).name( 'Camera Four' );
+
+	var animFolder = gui.addFolder('Animate');
+	animFolder.open();
+    animFolder.add( dances, 'fold' ).name( 'Fold' );
+    animFolder.add( dances, 'unfold' ).name( 'Unfold' );
+    animFolder.add( dances, 'dance' ).name( 'Dance' );
 }
+
+function getPropFromString(obj, str) {
+	var ss = str.split('.');
+	for (var i = 0; i < ss.length; i++)
+		obj = obj[ss[i]];
+	return obj;
+}
+
+function setPropFromString(obj, str, v) {
+	var ss = str.split('.');
+	for (var i = 0; i < ss.length - 1; i++)
+		obj = obj[ss[i]];
+	obj[ss[ss.length-1]] = v;
+}
+
+function omgHackGetDisplay(str) {
+	var ss = str.split('.');
+	var obj = window.displays;
+	for (var i = 0; i < ss.length; i++) {
+		if (ss[i] === 'rotation') {
+			if (i === 1)
+				return obj.main;
+			else
+				return obj;
+		}
+		else {
+			obj = obj[ss[i]];
+		}
+	}
+	throw 'wat';
+}
+
+var foldSequence = [
+	['arm.rotation.y', {target: -1.4, change: -0.1}],
+	['arm.elbow.rotation.x', {target: -0.9, change: -0.1}],
+	['mast.neck.rotation.y', {target: -1, change: -0.1}],
+	['mast.rotation.z', {target: -1.3, change: -0.1}],
+];
+
+var unfoldSequence = [
+	['mast.rotation.z', {target: 0, change: +0.1}],
+	['mast.neck.rotation.y', {target: 0, change: +0.1}],
+	['arm.elbow.rotation.x', {target: 0, change: +0.1}],
+	['arm.rotation.y', {target: 0, change: +0.1}],
+];
+
+var danceSequence = [
+	['rotationSpeed', 0.5],
+	['rotationSpeed', -0.5],
+	['rotationSpeed', 0],
+	['arm.shoulder.rotation.x', {target: -0.9, change: -0.1}],
+	['arm.rotation.y', {target: -1.4, change: -0.1}],
+	['arm.elbow.rotation.x', {target: -0.9, change: -0.1}],
+
+	['mast.head.rotation.x', {target: 2, change: +0.1}],
+	['mast.head.rotation.x', {target: 0, change: -0.1}],
+
+	['rotationSpeed', -0.5],
+	['rotationSpeed', 0.5],
+	['rotationSpeed', 0],
+
+	['mast.neck.rotation.y', {target: -2, change: -0.1}],
+	['mast.neck.rotation.y', {target: -1, change: -0.1}],
+
+	['mast.rotation.z', {target: -1.3, change: -0.1}],
+
+	['arm.shoulder.rotation.x', {target: 0.9, change: +0.1}],
+	['mast.rotation.z', {target: 0, change: +0.1}],
+	['mast.neck.rotation.y', {target: 0, change: +0.1}],
+
+	['arm.elbow.rotation.x', {target: 0, change: +0.1}],
+	['arm.rotation.y', {target: 0, change: +0.1}],
+];
+
+function makeDance(name, sequence, loop) {
+	var running = false;
+	return function(noSendMessage) {
+		if (!noSendMessage) conn.send('toggle-dance', name);
+		running = !running;
+		var danceStep = 0;
+		function nextStep() {
+			setTimeout(function(){
+				if (!running) {
+					controlsRover.moveLeft = false;
+					controlsRover.moveRight = false;
+					return;
+				}
+				var currStep = sequence[danceStep];
+				if (currStep[0] === 'rotationSpeed') {
+					if (currStep[1] < rover.rotationSpeed && currStep[1] < rover.rotationSpeed - 0.01) {
+						controlsRover.moveLeft = false;
+						controlsRover.moveRight = true;
+					} else if (currStep[1] > rover.rotationSpeed && currStep[1] > rover.rotationSpeed + 0.01) {
+						controlsRover.moveRight = false;
+						controlsRover.moveLeft = true;
+					} else {
+						controlsRover.moveLeft = false;
+						controlsRover.moveRight = false;
+						danceStep++;
+					}
+				}
+				else {
+					var currValue = getPropFromString(rover, currStep[0]);
+					var display = omgHackGetDisplay(currStep[0]);
+					if ((currValue < currStep[1].target && currStep[1].change > 0) ||
+						(currValue > currStep[1].target && currStep[1].change < 0)) {
+						var newValue = currValue + currStep[1].change;
+						setPropFromString(rover, currStep[0], newValue);
+						display.object[_.last(currStep[0].split('.'))] = newValue;
+						display.updateDisplay();
+					} else
+						danceStep++;
+				}
+				if (danceStep < sequence.length) nextStep();
+				else if (loop) { danceStep = 0; nextStep(); }
+			}, 30);
+		}
+		nextStep();
+	};
+}
+
+window.dances = {
+	fold: makeDance('fold', foldSequence),
+	unfold: makeDance('unfold', unfoldSequence),
+    dance: makeDance('dance', danceSequence, true)
+};
 
 function keySignaller(evName, fn) {
     return function(e) {
