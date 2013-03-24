@@ -1,7 +1,7 @@
 <?php
 // Simple PHP Upload Script:  http://coursesweb.net/php-mysql/
 
-$uploadpath = '.';      // directory to store the uploaded files
+$uploadpath = './images/solarsystem/';      // directory to store the uploaded files
 $max_size = 2000;          // maximum file size, in KiloBytes
 $alwidth = 900;            // maximum allowed width, in pixels
 $alheight = 800;           // maximum allowed height, in pixels
@@ -12,8 +12,8 @@ if(isset($_FILES['file']) && strlen($_FILES['file']['name']) > 1) {
   $sepext = explode('.', strtolower($_FILES['file']['name']));
 
   // If no errors, upload the image, else, output the errors
-    if(move_uploaded_file($_FILES['file']['tmp_name'], $uploadpath)) { 
-      echo 'Success';
-    } else echo 'Failed upload';
+  if(move_uploaded_file($_FILES['file']['tmp_name'], $uploadpath)) { 
+    echo 'Success';
+  } else echo 'Failed upload';
 }
 ?> 
