@@ -13,6 +13,10 @@ var stats,
 window.controls = controls
 window.gui = gui
 
+function send_camera(conn, camera, target, time) {
+    conn.send('move-camera', {position: camera.position, target: target, time: time})
+}
+
 var PointerLock = (function() {
     var self = {};
     var enabled = false;
@@ -56,8 +60,8 @@ var PointerLock = (function() {
     };
 
     self.addEventListener("mousemove", function(event) {
-	conn.send("delta-mouse-move", {x: event.movementX, y: event.movementY})
 	controls.rotateByDelta(event.movementX, event.movementY)
+	send_camera(conn, camera, camTarget, t)
     })
 
     self.enableLock = function(opts) {
@@ -341,11 +345,9 @@ THREE.OrbitControls = function ( object, domElement ) {
 	    if ( event.button === 0 || event.button === 2 ) {
 		scope.state = STATE.ROTATE;
 		scope.rotateStart.set( event.clientX, event.clientY );
-		conn.send("camera-rotate", {x: event.clientX, y: event.clientY})
 	    } else if ( event.button === 1 ) {
 		scope.state = STATE.ZOOM;
 		scope.zoomStart.set( event.clientX, event.clientY );
-		conn.send("camera-zoom", {x: event.clientX, y: event.clientY})
 	    }
 
 	    document.addEventListener( 'mousemove', onMouseMove, false );
@@ -381,7 +383,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	function onMouseMove(event) {
 	    event.preventDefault();
-	    conn.send('mouse-move', {x: event.clientX, y: event.clientY})
+	    send_camera(conn, camera, camTarget, t);
 	    scope.handleMouseMove(event.clientX, event.clientY)
 	}
 
@@ -392,7 +394,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 	    document.removeEventListener('mouseup', onMouseUp, false);
 
 	    function disable() {
-		conn.send('mouse-up', {x: event.clientX, y: event.clientY})
 		scope.state = STATE.NONE
 	    }
 
@@ -422,7 +423,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 	    }
 
 	    scope.handleMouseWheel(delta)
-	    conn.send('mouse-wheel', {delta: delta})
+
+	    send_camera(conn, camera, camTarget, t)
 	}
 
 	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
@@ -6394,14 +6396,13 @@ function makeSolarSystem(){
 
 	}
 	return ss3D;
-};var camPosition = function( position, target, time, is_client ){
-	this.tween = function(){
-        if (!is_client) {
-            conn.send('preset-camera-select', {position: position, target: target, time: time});
-        }
+};
 
-		TWEEN.removeAll();
-		camTweener( position, target, time );
+var camPosition = function( position, target, time, is_client ){
+	this.tween = function(){
+	    TWEEN.removeAll();
+	    camTweener(position, target, time);
+	    conn.send('move-camera', {position: position, target: target, delay:time, time:t})
 	};
 	return this;
 }
@@ -6458,6 +6459,7 @@ var VIEW_ANGLE = 45,
 var trajectory;
 
 var time, t;
+window.t = t
 var currentTime = new Date();
 var clock = new THREE.Clock();
 
