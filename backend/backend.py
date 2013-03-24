@@ -16,10 +16,16 @@ class Client:
 
 # process-global set of per-document connected clients
 doc_clients = defaultdict(set)
+# toggles whether we're in pilot mode
+has_a_pilot = False
 
 
 def take_pilot(conn, data):
+  global has_a_pilot
+  if has_a_pilot:
+    return  # the pilot must relenquish control first
   conn.client.is_pilot = True
+  has_a_pilot = True
   for c in doc_clients[conn.doc]:
     if c.conn is conn:
       continue
@@ -28,7 +34,11 @@ def take_pilot(conn, data):
 
 
 def release_pilot(conn, data):
+  global has_a_pilot
+  if not has_a_pilot or not conn.client.is_pilot:
+    return  # no sense releasing if there isn't one
   conn.client.is_pilot = False
+  has_a_pilot = True
   for c in doc_clients[conn.doc]:
     c.can_broadcast = True
 
