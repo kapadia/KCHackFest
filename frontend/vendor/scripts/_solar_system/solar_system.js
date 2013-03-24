@@ -6479,9 +6479,9 @@ function setLoadMessage( msg ){
 }
 
 $(document).ready( function() {
-  console.log("READY");
   // sockets
   if ('WebSocket' in window){
+    console.log("WebSocket READY");
     conn = new CSLESocket('solar_system', 'ws://' + window.location.hostname + ':8888');
   } else {
     console.log("Websocket is not supported!!");
@@ -6501,8 +6501,7 @@ $(document).ready( function() {
   });
   $('html').filedrop({
     //TODO: upload onto server
-    //url: window.location.hostname + ':8888/upload',
-    //paramname: 'lolcat',
+    url: './upload.php',
     drop: function() {
       var planetMaterial = new THREE.MeshLambertMaterial( {
           map: THREE.ImageUtils.loadTexture('./images/solarsystem/sunmap.jpg'),
