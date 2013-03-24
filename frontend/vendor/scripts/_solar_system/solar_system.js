@@ -6343,8 +6343,8 @@ function makeSolarSystem(){
 	findSemiMinor();
 	ssScale = new solarSystemScale();
 	ssScale.s = 100;
-	ssScale.sunScale = .00001;
-	ssScale.planetScale = .0001;
+	ssScale.sunScale = .00002;
+	ssScale.planetScale = .0008;
 
 	var ss3D = new THREE.Object3D();
 
@@ -6518,8 +6518,9 @@ function init() {
 	scene.fog = new THREE.FogExp2( 0x000000, 0.000045 );
 
 	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
-	camera.position.y = 200;
-	camera.position.z = 500;
+	camera.position.x = 50
+	camera.position.y = 34
+	camera.position.z = 180
 
 	camTarget = new THREE.Vector3();
 	camTarget = scene.position;
