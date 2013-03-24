@@ -6,3 +6,6 @@ node_modules/
 tmp/
 frontend/public
 *\~
+*.dae
+*.png
+*.swp

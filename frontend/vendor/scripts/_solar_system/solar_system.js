@@ -7,7 +7,11 @@ var stats,
 	controls,
 	tween,
 	camTarget,
-	solarSystem;
+	solarSystem,
+        gui;
+
+window.controls = controls
+window.gui = gui
 
 var PointerLock = (function() {
     var self = {};
@@ -163,13 +167,13 @@ THREE.OrbitControls = function ( object, domElement ) {
 	var EPS = 0.000001;
 	var PIXELS_PER_ROUND = 1800;
 
-	var rotateStart = new THREE.Vector2();
-	var rotateEnd = new THREE.Vector2();
-	var rotateDelta = new THREE.Vector2();
+	this.rotateStart = new THREE.Vector2();
+	this.rotateEnd = new THREE.Vector2();
+	this.rotateDelta = new THREE.Vector2();
 
-	var zoomStart = new THREE.Vector2();
-	var zoomEnd = new THREE.Vector2();
-	var zoomDelta = new THREE.Vector2();
+	this.zoomStart = new THREE.Vector2();
+	this.zoomEnd = new THREE.Vector2();
+	this.zoomDelta = new THREE.Vector2();
 
 	var phiDelta = 0;
 	var thetaDelta = 0;
@@ -178,7 +182,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 	var lastPosition = new THREE.Vector3();
 
 	var STATE = { NONE : -1, ROTATE : 0, ZOOM : 1 };
-	var state = STATE.NONE;
+	this.state = STATE.NONE;
+	this.STATE = STATE
 
 	// events
 
@@ -334,12 +339,12 @@ THREE.OrbitControls = function ( object, domElement ) {
 	    scope.startTime = (new Date()).getTime()
 
 	    if ( event.button === 0 || event.button === 2 ) {
-		state = STATE.ROTATE;
-		rotateStart.set( event.clientX, event.clientY );
+		scope.state = STATE.ROTATE;
+		scope.rotateStart.set( event.clientX, event.clientY );
 		conn.send("camera-rotate", {x: event.clientX, y: event.clientY})
 	    } else if ( event.button === 1 ) {
-		state = STATE.ZOOM;
-		zoomStart.set( event.clientX, event.clientY );
+		scope.state = STATE.ZOOM;
+		scope.zoomStart.set( event.clientX, event.clientY );
 		conn.send("camera-zoom", {x: event.clientX, y: event.clientY})
 	    }
 
@@ -347,37 +352,37 @@ THREE.OrbitControls = function ( object, domElement ) {
 	    document.addEventListener( 'mouseup', onMouseUp, false );
 	}
 
-        scope.rotateByDelta = function(dx,dy) {
+        this.rotateByDelta = function(dx,dy) {
 	    scope.rotateLeft( 2 * Math.PI * dx / PIXELS_PER_ROUND * scope.userRotateSpeed );
 	    scope.rotateUp( 2 * Math.PI * dy / PIXELS_PER_ROUND * scope.userRotateSpeed );
 	}
 
-        function handleMouseMove(x,y) {
-	    if ( state === STATE.ROTATE ) {
-		rotateEnd.set(x, y);
-		rotateDelta.subVectors( rotateEnd, rotateStart );
+        this.handleMouseMove = function(x,y) {
+	    if ( scope.state === STATE.ROTATE ) {
+		this.rotateEnd.set(x, y);
+		this.rotateDelta.subVectors( this.rotateEnd, this.rotateStart );
 
-		scope.rotateByDelta(rotateDelta.x, rotateDelta.y)
+		scope.rotateByDelta(this.rotateDelta.x, this.rotateDelta.y)
 
-		rotateStart.copy( rotateEnd );
-	    } else if ( state === STATE.ZOOM ) {
-		zoomEnd.set(x, y);
-		zoomDelta.subVectors( zoomEnd, zoomStart );
+		this.rotateStart.copy( this.rotateEnd );
+	    } else if ( scope.state === STATE.ZOOM ) {
+		scope.zoomEnd.set(x, y);
+		scope.zoomDelta.subVectors( scope.zoomEnd, scope.zoomStart );
 
-		if ( zoomDelta.y > 0 ) {
+		if ( scope.zoomDelta.y > 0 ) {
 		    scope.zoomIn();
 		} else {
 		    scope.zoomOut();
 		}
 
-		zoomStart.copy( zoomEnd );
+		scope.zoomStart.copy( scope.zoomEnd );
 	    }
        }
 
 	function onMouseMove(event) {
 	    event.preventDefault();
 	    conn.send('mouse-move', {x: event.clientX, y: event.clientY})
-	    handleMouseMove(event.clientX, event.clientY)
+	    scope.handleMouseMove(event.clientX, event.clientY)
 	}
 
 	function onMouseUp( event ) {
@@ -388,7 +393,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	    function disable() {
 		conn.send('mouse-up', {x: event.clientX, y: event.clientY})
-		state = STATE.NONE
+		scope.state = STATE.NONE
 	    }
 
 	    if((new Date()).getTime() - scope.startTime < 250)
@@ -397,7 +402,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 		disable()
 	}
 
-        function handleMouseWheel(delta) {
+        this.handleMouseWheel = function(delta) {
 	    if ( delta > 0 ) {
 		scope.zoomOut();
 	    } else {
@@ -416,8 +421,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 		delta = - event.detail;
 	    }
 
-	    handleMouseWheel(delta)
-
+	    scope.handleMouseWheel(delta)
 	    conn.send('mouse-wheel', {delta: delta})
 	}
 
@@ -425,27 +429,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.domElement.addEventListener( 'mousedown', onMouseDown, false );
 	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
 	this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false); // firefox
-
-    	conn.on('camera-rotate', function(data){
-	    state = STATE.ROTATE;
-	    rotateStart.set(data.x, data.y);
-	})
-        conn.on('camera-zoom', function(data) {
-	    state = STATE.ZOOM;
-	    zoomStart.set(data.x, data.y);
-        })
-        conn.on('mouse-wheel', function(data) {
-   	    handleMouseWheel(data.delta)
-        })
-        conn.on('mouse-move', function(data) {
-	    handleMouseMove(data.x, data.y)
-	})
-        conn.on("delta-mouse-move", function(event) {
-	    scope.rotateByDelta(event.x, event.y)
-	})
-        conn.on('mouse-up', function(data) {
-	    state = STATE.NONE
-	})
 };
 /**
  * @author Tim Knip / http://www.floorplanner.com/ / tim at floorplanner.com
@@ -6038,7 +6021,7 @@ var Label = function( glObject, size, element ) {
     label.visMin = 0;
     label.visMax = 10000;
 
-	//element.appendChild( label );
+	// element.appendChild( label );
 
 	label.setPosition = function( x, y ) {
 		x -= this.labelWidth * 0.5;
@@ -6185,9 +6168,6 @@ function lensFlareUpdateCallback( object ) {
 	// };
 
 	LOD.orbiting = function( eph, JD, scale ){
-
-		//JD = time.Date2Julian();
-
 		var DEGS = 180/Math.PI;      // convert radians to degrees
 		var RADS = Math.PI/180;      // convert degrees to radians
 		var EPS  = 1.0e-12;          // machine error constant
@@ -6324,6 +6304,9 @@ var ss = [],
 	scaling = true,
 	prevTime = 0;
 
+window.scaling = scaling
+window.ssScale = ssScale
+
 var solarSystemScale = function(){
 	this.s = 1;
 	this.sunScale = 1;
@@ -6338,12 +6321,9 @@ function findSemiMinor(){
 }
 
 function planetsOrbit( time ){
-	if( time > prevTime ){
-		for ( var i = 1; i < ss.length; i ++ ) {
-	        var planet = ss[i];
-			ss[i].orbiting( ephemeris[i], time, ssScale.s );
-		}
-		prevTime = time;
+	for ( var i = 1; i < ss.length; i ++ ) {
+    var planet = ss[i];
+		ss[i].orbiting( ephemeris[i], time, ssScale.s );
 	}
 }
 
@@ -6366,8 +6346,8 @@ function makeSolarSystem(){
 	findSemiMinor();
 	ssScale = new solarSystemScale();
 	ssScale.s = 100;
-	ssScale.sunScale = .00001;
-	ssScale.planetScale = .0001;
+	ssScale.sunScale = .00002;
+	ssScale.planetScale = .0008;
 
 	var ss3D = new THREE.Object3D();
 
@@ -6486,14 +6466,46 @@ function setLoadMessage( msg ){
 }
 
 $(document).ready( function() {
-        console.log("READY");
-        // sockets
-        if ('WebSocket' in window){
-          console.log(window.location);
-    	    conn = new CSLESocket('solar_system', 'ws://' + window.location.hostname + ':8888')
-        } else {
-            console.log("websocket don't work!!");
-        }
+  console.log("READY");
+  // sockets
+  if ('WebSocket' in window){
+    conn = new CSLESocket('solar_system', 'ws://' + window.location.hostname + ':8888');
+  } else {
+    console.log("Websocket is not supported!!");
+  }
+
+  conn.on('change-texture', function(data) {
+    $.each(ss, function(i, planet) {
+      if (planet.name == data['planet']) {
+        //console.log('found planet ' + planet.name);
+        var planetMaterial = new THREE.MeshLambertMaterial( {
+            map: THREE.ImageUtils.loadTexture(planet['texture']),
+            overdraw: true
+        });
+        planet.material = planetMaterial;
+      }
+    });
+  });
+  $('html').filedrop({
+    //TODO: upload onto server
+    //url: window.location.hostname + ':8888/upload',
+    //paramname: 'lolcat',
+    drop: function() {
+      var planetMaterial = new THREE.MeshLambertMaterial( {
+          map: THREE.ImageUtils.loadTexture('./images/solarsystem/sunmap.jpg'),
+          overdraw: true
+      });
+      window.INTERSECTED.material = planetMaterial;
+    },
+    uploadStarted: function(i, file, len) {
+      console.log('started');
+    },  
+    uploadFinished: function(i, file, response, time) {
+      console.log('finished');
+      conn.send('change-texture', {texture:'./images/solarsystem/sunmap.jpg',
+                                   planet:window.INTERSECTED.name});
+    }   
+  });
 
 	if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
@@ -6531,8 +6543,9 @@ function init() {
 	scene.fog = new THREE.FogExp2( 0x000000, 0.000045 );
 
 	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
-	camera.position.y = 200;
-	camera.position.z = 500;
+	camera.position.x = 50
+	camera.position.y = 34
+	camera.position.z = 180
 
 	camTarget = new THREE.Vector3();
 	camTarget = scene.position;
@@ -6573,11 +6586,6 @@ function init() {
 	camEarth = new camPosition( { x: 50, y: 50, z: 250 }, ss[3].position, 1500, false );
 	camMars = new camPosition( { x: 75, y: 50, z: 300 }, ss[4].position, 1500, false );
 
-        conn.on('preset-camera-select', function(data) {
-	    camX = new camPosition( data.position, data.target, data.time, true );
-            camX.tween();
-	})
-
 	t = new timer();
 	t.count = 0;
 
@@ -6600,55 +6608,41 @@ function init() {
 
 function buildGUI(){
 
-	var gui = new dat.GUI();
-	var mult = gui.add( t, 'multiplier', 0, 5)
-	              .name( 'Orbit Speed' )
-                      .onChange(function(val) {
-			  conn.send('multiplier-change', {val: val})
-		      })
-
-        conn.on('multiplier-change', function(data) {
-	    t['multiplier'] = data.val
-	    mult.object['multiplier'] = data.val
-	    mult.updateDisplay()
+    gui = {}
+    gui.g = new dat.GUI()
+    gui.mult = gui.g.add( t, 'multiplier', -5, 5)
+	.name( 'Orbit Speed' )
+        .onChange(function(val) {
+	    conn.send('multiplier-change', {val: val})
 	})
 
-        var scales = []
-	scales.push(gui.add(ssScale, 's', 1, 100 )
+    gui.scales = []
+    gui.scales.push(gui.g.add(ssScale, 's', 1, 100 )
 		    .name('SS Scale')
 		    .onChange(function(val){
 			scaling = true;
 			conn.send('ssScale-change', {property: 's', val: val})
 		    }));
-        scales.push(gui.add(ssScale, 'sunScale', .00001, .00002 )
+    gui.scales.push(gui.g.add(ssScale, 'sunScale', .00001, .00002 )
 		    .name('Sun Scale')
 		    .onChange(function(val){
 			scaling = true;
 			conn.send('ssScale-change', {property: 'sunScale', val: val})
 		    }));
-        scales.push(gui.add(ssScale, 'planetScale', .0001, .001 )
+    gui.scales.push(gui.g.add(ssScale, 'planetScale', .0001, .001 )
 		    .name('Planet Scale')
 		    .onChange(function(val){
 			scaling = true;
 			conn.send('ssScale-change', {property: 'planetScale', val: val})
 		    }));
 
-        conn.on('ssScale-change', function(data) {
-	    ssScale[data.property] = data.val
-	    scaling = true
-	    for(var i in scales) {
-		scales[i].object[data.property] = data.val
-		scales[i].updateDisplay()
-	    }
-	})
-
-	var camFolder = gui.addFolder( 'Camera Positions' );
-	camFolder.open();
-	camFolder.add( camOne, 'tween' ).name( 'Camera Home' );
-	camFolder.add( camTwo, 'tween' ).name( 'Camera Two' );
-	camFolder.add( camThree, 'tween' ).name( 'Camera Three' );
-	camFolder.add( camEarth, 'tween' ).name( 'Camera Earth' );
-	camFolder.add( camMars, 'tween' ).name( 'Camera Mars' );
+    gui.camFolder = gui.g.addFolder( 'Camera Positions' );
+    gui.camFolder.open();
+    gui.camFolder.add( camOne, 'tween' ).name( 'Camera Home' );
+    gui.camFolder.add( camTwo, 'tween' ).name( 'Camera Two' );
+    gui.camFolder.add( camThree, 'tween' ).name( 'Camera Three' );
+    gui.camFolder.add( camEarth, 'tween' ).name( 'Camera Earth' );
+    gui.camFolder.add( camMars, 'tween' ).name( 'Camera Mars' );
 }
 
 
@@ -6714,8 +6708,7 @@ function animate() {
 	setSolarSystemScale();
 
 	var JD = currentTime.Date2Julian();
-	JD = t.count;
-	planetsOrbit( JD );
+	planetsOrbit(JD + t.count);
 
 	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
 	projector.unprojectVector( vector, camera );
@@ -6747,7 +6740,7 @@ function animate() {
 	}
 
 	uniforms.time.value = time + delta;
-	t.count = t.count + 1 * t.multiplier;
+	t.count += 1 * t.multiplier;
 
 
 	camera.lookAt( camTarget );
