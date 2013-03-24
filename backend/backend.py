@@ -6,8 +6,8 @@ from tornado.websocket import WebSocketHandler
 
 
 class Client:
-  def __init__(self, conn, is_pilot=False):
-    self.can_broadcast = True
+  def __init__(self, conn, is_pilot=False, can_broadcast=True):
+    self.can_broadcast = can_broadcast
     self.conn = conn
     self.is_pilot = is_pilot
 
@@ -58,7 +58,7 @@ class InteractionHandler(WebSocketHandler):
   '''Handles all websocket connections and messages'''
   def open(self, doc):
     self.doc = doc
-    self.client = Client(self)
+    self.client = Client(self, can_broadcast=(not doc_pilots[doc]))
     doc_clients[doc].add(self.client)
 
   def on_special(self, msg):
@@ -80,6 +80,7 @@ class InteractionHandler(WebSocketHandler):
         c.send(msg)
 
   def on_close(self):
+    release_pilot(self, None)
     doc_clients[self.doc].remove(self.client)
 
 
