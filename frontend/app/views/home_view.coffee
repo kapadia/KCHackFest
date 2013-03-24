@@ -7,7 +7,7 @@ module.exports = class HomeView extends View
 
   render: ->
     @html require 'views/templates/home'
-    @socket = new CSLESocket('home', "ws://#{window.location.hostname}:8888")
+    @socket = new CSLESocket('home', "ws://#{window.location.hostname}:8898")
     @cursors = {}  # map from id -> DOM image
     @socket.on('cursor', (data) =>
       c = @cursors[data.uuid]
