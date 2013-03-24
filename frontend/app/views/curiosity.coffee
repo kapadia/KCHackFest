@@ -18,8 +18,8 @@ module.exports = class CuriosityView extends View
     conn.on 'mast-change', (data) ->
       part = if data.subpart == 'main' then rover.mast else rover.mast[data.subpart]
       part.rotation[data.property] = data.val
-      mastDisplays[data.subpart].object[data.property] = data.val
-      mastDisplays[data.subpart].updateDisplay()
+      displays.mast[data.subpart].object[data.property] = data.val
+      displays.mast[data.subpart].updateDisplay()
     conn.on 'camera-rotate', (data) ->
       state = STATE.ROTATE
       rotateStart.set(data.x, data.y)
@@ -31,7 +31,8 @@ module.exports = class CuriosityView extends View
     conn.on 'arm-change', (data) ->
       part = if data.subpart == 'main' then rover.arm else rover.arm[data.subpart]
       part.rotation[data.property] = data.val
-      armDisplays[data.subpart].object[data.property] = data.val
-      armDisplays[data.subpart].updateDisplay()
-
+      displays.arm[data.subpart].object[data.property] = data.val
+      displays.arm[data.subpart].updateDisplay()
+    conn.on 'toggle-dance', (name) ->
+      window.dances[name](true)
     window.conn = conn
