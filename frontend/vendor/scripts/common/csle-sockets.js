@@ -2,6 +2,8 @@
   this.CSLESocket = function(doc, url) {
     this.doc = doc;
     this.url = url;
+    if (!('WebSocket' in window))
+      throw new Error("Browser doesn't support WebSockets");
     this.ws = new WebSocket(url + "/docs/" + doc);
     this.event_handlers = {};
 
