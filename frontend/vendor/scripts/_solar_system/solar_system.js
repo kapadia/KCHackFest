@@ -6477,9 +6477,9 @@ $(document).ready( function() {
   conn.on('change-texture', function(data) {
     $.each(ss, function(i, planet) {
       if (planet.name == data['planet']) {
-        //console.log('found planet ' + planet.name);
+        console.log('Changed ' + planet.name + ' texture to ' + data['texture']);
         var planetMaterial = new THREE.MeshLambertMaterial( {
-            map: THREE.ImageUtils.loadTexture(planet['texture']),
+            map: THREE.ImageUtils.loadTexture(data['texture']),
             overdraw: true
         });
         planet.material = planetMaterial;
@@ -6502,7 +6502,7 @@ $(document).ready( function() {
     },  
     uploadFinished: function(i, file, response, time) {
       console.log('finished');
-      conn.send('change-texture', {texture:'./images/solarsystem/sunmap.jpg',
+      conn.send('change-texture', {texture:"./images/solarsystem/sunmap.jpg",
                                    planet:window.INTERSECTED.name});
     }   
   });
