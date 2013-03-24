@@ -6,7 +6,7 @@ SolarSystemView = require 'views/solar_system'
 
 module.exports = class AppView extends View
   el: 'body.application'
-  socket: new CSLESocket('home', 'ws://localhost:8888')
+  socket: new CSLESocket('home', "ws://#{window.location.hostname}:8888")
   cursors: {}  # map from id -> DOM image
   uuid: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) ->
     r = Math.random()*16|0
