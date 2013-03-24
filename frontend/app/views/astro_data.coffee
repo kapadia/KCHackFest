@@ -5,7 +5,7 @@ module.exports = class AstroDataView extends View
   className: 'astro-data'
   el: 'body.application'
   bands: ['g', 'r', 'i']
-  
+  arrays: {}
   events:
     'change input[data-type="q"]'     : 'onQ'
     'change input[data-type="alpha"]' : 'onAlpha'
@@ -80,6 +80,9 @@ module.exports = class AstroDataView extends View
     extent = dataunit.getExtent(arr)
     band = opts.band
     
+    # Store array
+    @arrays[band] = arr
+    
     @webfits.loadImage(band, arr, width, height)
     
     # Get histogram
@@ -92,6 +95,7 @@ module.exports = class AstroDataView extends View
       @webfits.setAlpha(0.03)
       @webfits.setQ(0.01)
       @webfits.drawColor('i', 'g', 'r')
+      @ready = true
       
       # Setup websocket and event callbacks when all three files are loaded
       @socket = new CSLESocket('astro_data', "ws://#{window.location.hostname}:8888")
@@ -121,19 +125,25 @@ module.exports = class AstroDataView extends View
       @socket.set_onclose (e) =>
         @socket_active = false
 
-    # Setup mouse callbacks for webfits
-    callbacks =
-      onmousemove: =>
-        if @socket_active and @webfits.drag
-          @socket.send 'mouse-move',
-            x: @webfits.xOffset
-            y: @webfits.yOffset
-      onzoom: =>
-        if @socket_active
-          @socket.send 'zoom',
-            z: @webfits.zoom
+      # Setup mouse callbacks for webfits
+      callbacks =
+        onmousemove: (x, y) =>
+        
+          # Get flux values
+          console.log 'i', @arrays['i'][2048 * y + x]
+          console.log 'r', @arrays['r'][2048 * y + x]
+          console.log 'g', @arrays['g'][2048 * y + x]
+        
+          if @socket_active and @webfits.drag
+            @socket.send 'mouse-move',
+              x: @webfits.xOffset
+              y: @webfits.yOffset
+        onzoom: =>
+          if @socket_active
+            @socket.send 'zoom',
+              z: @webfits.zoom
 
-    @webfits.setupControls(callbacks)
+      @webfits.setupControls(callbacks)
     
   onQ: (e) =>
     value = e.currentTarget.value
@@ -158,11 +168,7 @@ module.exports = class AstroDataView extends View
       sum += value
       index = Math.floor(((value - min) / range) * nBins)
       histogram[index] += 1
-      
-    # # Apply log to histogram
-    # for value, index in histogram
-    #   histogram[index] = Math.log(value)
-      
+    
     min = Math.min.apply(Math, histogram)
     max = Math.max.apply(Math, histogram)
     
