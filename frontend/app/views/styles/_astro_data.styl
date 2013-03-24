@@ -1,4 +1,44 @@
-.astro_data
-    rect
-      fill red
+
+.astro-data
+  background #151515
+  padding 0
+  display table
+  width 100%
+  height 100%
+  
+  article
+    float left
+    margin-top 80px
     
+    input[type='range']
+      -webkit-appearance none !important
+      background #FAFAFA
+      height 2px
+
+    input[type='range']::-webkit-slider-thumb
+      -webkit-appearance none !important
+      background #FAFAFA
+      height 20px
+      width 6px
+    
+    &.image
+      border 1px solid #FAFAFA
+
+.histograms
+  .histogram
+    
+    .axis
+      fill none
+      stroke white
+      stroke-width 1px
+  
+    .tick
+      font-size 11px
+  
+    rect
+      &.i
+        fill red
+      &.r
+        fill green
+      &.g
+        fill blue

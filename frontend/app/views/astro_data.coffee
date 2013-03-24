@@ -2,7 +2,7 @@ View = require '../lib/view'
 
 module.exports = class AstroDataView extends View
   template: require 'views/templates/astro_data'
-  className: 'astro_data'
+  className: 'astro-data'
   el: 'body.application'
   bands: ['g', 'r', 'i']
   socket: new CSLESocket('astro_data', "ws://#{window.location.hostname}:8888")
@@ -26,7 +26,7 @@ module.exports = class AstroDataView extends View
   getData: =>
     
     # Initialize WebFITS object
-    el = document.querySelector('.astro_data')
+    el = document.querySelector('.astro-data .image')
     @webfits = new astro.WebFITS(el, 600)
     
     # Load remote data
@@ -124,11 +124,11 @@ module.exports = class AstroDataView extends View
     margin =
       top: 0
       right: 20
-      bottom: 60
+      bottom: 10
       left: 10
     
-    w = 390 - margin.right - margin.left
-    h = 260 - margin.top - margin.bottom
+    w = 200 - margin.right - margin.left
+    h = 100 - margin.top - margin.bottom
     
     # Create x and y scales
     x = d3.scale.linear()
