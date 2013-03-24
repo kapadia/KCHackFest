@@ -6483,20 +6483,19 @@ $(document).ready( function() {
     url: './upload.php',
     paramname: 'file',
     drop: function() {
-      var planetMaterial = new THREE.MeshLambertMaterial( {
-          map: THREE.ImageUtils.loadTexture('./images/solarsystem/sunmap.jpg'),
-          overdraw: true
-      });
-      window.INTERSECTED.material = planetMaterial;
     },
     uploadStarted: function(i, file, len) {
       console.log('started');
     },
     uploadFinished: function(i, file, response, time) {
-      console.log('finished');
-      console.log(response);
-      conn.send('change-texture', {texture:"./images/solarsystem/sunmap.jpg",
+      conn.send('change-texture', {texture:"./images/solarsystem/" + file.name,
                                    planet:window.INTERSECTED.name});
+      var planetMaterial = new THREE.MeshLambertMaterial( {
+          map: THREE.ImageUtils.loadTexture("./images/solarsystem/" + file.name),
+          overdraw: true
+      });
+      window.INTERSECTED.material = planetMaterial;
+      console.log('finished');
     }
   });
 
