@@ -46,7 +46,8 @@ module.exports = class SolarSystemView extends View
           textures[name] = planet)
 
     conn.on('multiplier-change', (data) ->
-      window.gui.mult.object['multiplier'] = data.val
+      window.t.multiplier = data.val
+      window.gui.mult.object.multiplier = data.val
       window.gui.mult.updateDisplay())
 
     conn.on('ssScale-change', (data) ->
@@ -55,6 +56,7 @@ module.exports = class SolarSystemView extends View
       for s in window.gui.scales
         s.object[data.property] = data.val
         s.updateDisplay())
+
     conn.on 'pilot-changed', (pilot_disabled) ->
       document.getElementById('pilot')?.disabled = pilot_disabled
 
