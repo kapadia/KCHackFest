@@ -5,7 +5,6 @@ module.exports = class AstroDataView extends View
   className: 'astro-data'
   el: 'body.application'
   bands: ['g', 'r', 'i']
-  socket: new CSLESocket('astro_data', "ws://#{window.location.hostname}:8888")
   
   events:
     'change input[data-type="q"]'     : 'onQ'
@@ -66,7 +65,8 @@ module.exports = class AstroDataView extends View
       @webfits.setQ(0.01);
       @webfits.drawColor('i', 'g', 'r');
       
-    # setup websocket event callbacks
+    # setup websocket and event callbacks
+    @socket = new CSLESocket('astro_data', "ws://#{window.location.hostname}:8888")
     @socket_active = true
     @socket.on('mouse-move', (data) =>
       @webfits.xOffset = data.x
