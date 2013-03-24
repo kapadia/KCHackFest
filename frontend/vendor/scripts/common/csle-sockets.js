@@ -35,6 +35,7 @@
   };
 
   this.CSLESocket.prototype.close = function() {
+    this.send('goodbye', {uuid: CSLE.Views.AppView.uuid});  // tell others we're going away
     this.ws.close();
   };
 })(this);

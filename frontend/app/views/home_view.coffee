@@ -15,6 +15,11 @@ module.exports = class HomeView extends View
       c.style.left = "#{data.x * document.width}px"
       c.style.top  = "#{data.y * document.height}px"
     )
+    @socket.on('goodbye', (data) =>
+      c = @cursors[data.uuid]
+      c.parentNode.removeChild(c)
+      delete @cursors[data.uuid]
+    )
     @socket.set_onclose (e) ->
       # reset the mousemove handler
       document.onmousemove = (->)
