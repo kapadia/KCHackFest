@@ -6479,14 +6479,6 @@ function setLoadMessage( msg ){
 }
 
 $(document).ready( function() {
-  // sockets
-  if ('WebSocket' in window){
-    console.log("WebSocket READY");
-    conn = new CSLESocket('solar_system', 'ws://' + window.location.hostname + ':8888');
-  } else {
-    console.log("Websocket is not supported!!");
-  }
-
   conn.on('change-texture', function(data) {
     $.each(ss, function(i, planet) {
       if (planet.name == data['planet']) {
