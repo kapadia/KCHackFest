@@ -96,20 +96,32 @@ module.exports = class AstroDataView extends View
       @webfits.setQ(0.01)
       @webfits.drawColor('i', 'g', 'r')
       
-    # setup websocket and event callbacks
-    @socket = new CSLESocket('astro_data', "ws://#{window.location.hostname}:8888")
-    @socket_active = true
-    @socket.on('mouse-move', (data) =>
-      @webfits.xOffset = data.x
-      @webfits.yOffset = data.y
-      @webfits.draw()
-    )
-    @socket.on('zoom', (data) =>
-      @webfits.zoom = data.z
-      @webfits.draw()
-    )
-    @socket.set_onclose (e) => @socket_active = false
-
+      # Setup websocket and event callbacks when all three files are loaded
+      @socket = new CSLESocket('astro_data', "ws://#{window.location.hostname}:8888")
+      @socket_active = true
+      
+      @socket.on('mouse-move', (data) =>
+        @webfits.xOffset = data.x
+        @webfits.yOffset = data.y
+        @webfits.draw()
+      )
+      
+      @socket.on('zoom', (data) =>
+        @webfits.zoom = data.z
+        @webfits.draw()
+      )
+      
+      @socket.on('updateQ', (data) =>
+        @webfits.setQ(data.Q)
+      )
+      
+      @socket.on('updateAlpha', (data) =>
+        console.log 'updateAlpha'
+        @webfits.setAlpha(data.alpha)
+      )
+      
+      @socket.set_onclose (e) =>
+        @socket_active = false
 
     # Setup mouse callbacks for webfits
     callbacks =
@@ -126,10 +138,14 @@ module.exports = class AstroDataView extends View
     @webfits.setupControls(callbacks)
     
   onQ: (e) =>
-    @webfits.setQ(e.currentTarget.value)
+    value = e.currentTarget.value
+    @webfits.setQ(value)
+    @socket.send 'updateQ', {Q: value} if @socket_active
 
   onAlpha: (e) =>
-    @webfits.setAlpha(e.currentTarget.value)
+    value = e.currentTarget.value
+    @webfits.setAlpha(value)
+    @socket.send 'updateAlpha', {alpha: value} if @socket_active
   
   getHistogram: (band, arr, min, max) =>
     range = max - min
