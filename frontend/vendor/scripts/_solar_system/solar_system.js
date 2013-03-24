@@ -6491,8 +6491,8 @@ $(document).ready( function() {
       console.log('Started uploading' + file.name);
     },
     uploadFinished: function(i, file, response, time) {
-	var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
 	var vector = new THREE.Vector3( window.mouse.x, window.mouse.y, 1 );
+	var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
 	var intersects = raycaster.intersectObjects( solarSystem.children );
 	var INTERSECTED = intersects[ 0 ].object;
 	var texture = "./images/solarsystem/" + file.name
