@@ -149,7 +149,7 @@ module.exports = class AstroDataView extends View
     range = max - min
     
     sum = 0
-    nBins = 300
+    nBins = 3000
     binSize = range / nBins
     length = arr.length
     
@@ -159,9 +159,9 @@ module.exports = class AstroDataView extends View
       index = Math.floor(((value - min) / range) * nBins)
       histogram[index] += 1
       
-    # Apply log to histogram
-    for value, index in histogram
-      histogram[index] = Math.log(value)
+    # # Apply log to histogram
+    # for value, index in histogram
+    #   histogram[index] = Math.log(value)
       
     min = Math.min.apply(Math, histogram)
     max = Math.max.apply(Math, histogram)
