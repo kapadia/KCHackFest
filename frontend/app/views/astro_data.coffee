@@ -166,6 +166,7 @@ module.exports = class AstroDataView extends View
       .attr('height', ((d) ->
         return y(d)
       ))
+      .attr('class', band)
     
     # Create an x axis
     xAxis = d3.svg.axis()
