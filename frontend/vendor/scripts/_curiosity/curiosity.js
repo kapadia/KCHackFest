@@ -5418,15 +5418,22 @@ var danceSequence = [
 	['arm.rotation.y', {target: 0, change: +0.1}],
 ];
 
+var currentDance = null; // global token, one dance fn holds this per instant
+
 function makeDance(name, sequence, loop) {
-	var running = false;
 	return function(noSendMessage) {
 		if (!noSendMessage) conn.send('toggle-dance', name);
-		running = !running;
+		if (currentDance === name) { // disable
+			controlsRover.moveLeft = false;
+			controlsRover.moveRight = false;
+			currentDance = null;
+			return;
+		}
+		currentDance = name;
 		var danceStep = 0;
 		function nextStep() {
 			setTimeout(function(){
-				if (!running) {
+				if (currentDance !== name) {
 					controlsRover.moveLeft = false;
 					controlsRover.moveRight = false;
 					return;
