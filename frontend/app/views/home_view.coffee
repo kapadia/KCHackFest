@@ -12,8 +12,8 @@ module.exports = class HomeView extends View
     @socket.on('cursor', (data) =>
       c = @cursors[data.uuid]
       c = @new_cursor(data.uuid) unless c?
-      c.style.left = "#{data.x}px"
-      c.style.top  = "#{data.y}px"
+      c.style.left = "#{data.x * document.width}px"
+      c.style.top  = "#{data.y * document.height}px"
     )
     @socket.set_onclose (e) ->
       # reset the mousemove handler
@@ -21,8 +21,8 @@ module.exports = class HomeView extends View
     document.onmousemove = (e) =>
       @socket.send 'cursor',
         uuid: CSLE.Views.AppView.uuid
-        x: e.pageX
-        y: e.pageY
+        x: e.pageX / document.width
+        y: e.pageY / document.height
 
   new_cursor: (id) ->
     elt = document.createElement 'img'
