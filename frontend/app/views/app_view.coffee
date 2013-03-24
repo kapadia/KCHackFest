@@ -8,11 +8,7 @@ module.exports = class AppView extends View
   el: 'body.application'
   socket: new CSLESocket('home', "ws://#{window.location.hostname}:8888")
   cursors: {}  # map from id -> DOM image
-  uuid: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) ->
-    r = Math.random()*16|0
-    v = c=='x'?r:r&0x3|0x8
-    v.toString(16)
-  )
+  uuid: ((Math.random()*16|0).toString(16) for [0..20]).join ''
 
   initialize: ->
     @homeView = new HomeView()
