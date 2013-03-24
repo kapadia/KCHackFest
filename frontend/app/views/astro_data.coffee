@@ -18,6 +18,9 @@ module.exports = class AstroDataView extends View
   render: =>
     @html @template
     @trigger 'get-data'
+    @sliders = {}
+    for slider in document.getElementsByTagName('input') when slider.type is 'range'
+      @sliders[slider.dataset.type] = slider
     @html @overlay
     @
   
@@ -113,10 +116,12 @@ module.exports = class AstroDataView extends View
       
       @socket.on('updateQ', (data) =>
         @webfits.setQ(data.Q)
+        @sliders['q'].value = data.Q
       )
       
       @socket.on('updateAlpha', (data) =>
         @webfits.setAlpha(data.alpha)
+        @sliders['alpha'].value = data.alpha
       )
       
       @socket.set_onclose (e) =>
