@@ -5231,8 +5231,11 @@ function init() {
         EVENTS
     ********************************/
 
-    document.addEventListener( 'keydown', onKeyDown, false );
-    document.addEventListener( 'keyup', onKeyUp, false );
+    document.addEventListener('keydown', keySignaller('keydown', onKeyDown), false);
+    document.addEventListener('keyup', keySignaller('keyup', onKeyUp), false);
+
+    conn.on('keydown', onKeyDown)
+    conn.on('keyup', onKeyUp)
 
     window.addEventListener( 'resize', onWindowResize, false );
 
@@ -5378,24 +5381,30 @@ function buildGUI(){
     camFolder.add( camTweens.four, 'tween' ).name( 'Camera Four' );
 }
 
-function onKeyDown ( event ) {
+function keySignaller(evName, fn) {
+    return function(e) {
+        conn.send(evName, {keyCode: e.keyCode});
+        fn(e);
+    };
+}
 
-    switch( event.keyCode ) {
+function onKeyDown ( e ) {
 
-    case 38: /*up*/ controlsRover.moveForward = true; break;
-    case 40: /*up*/ controlsRover.moveBackward = true; break;
-    case 37: /*left*/ controlsRover.moveLeft = true; break;
-    case 39: /*right*/ controlsRover.moveRight = true; break;
+    switch( e.keyCode ) {
+        case 38: /*up*/ controlsRover.moveForward = true; break;
+        case 40: /*down*/ controlsRover.moveBackward = true; break;
+        case 37: /*left*/ controlsRover.moveLeft = true; break;
+        case 39: /*right*/ controlsRover.moveRight = true; break;
     }
 };
 
-function onKeyUp ( event ) {
+function onKeyUp ( e ) {
 
-    switch( event.keyCode ) {
-    case 38: /*up*/ controlsRover.moveForward = false; break;
-    case 40: /*up*/ controlsRover.moveBackward = false; break;
-    case 37: /*left*/ controlsRover.moveLeft = false; break;
-    case 39: /*right*/ controlsRover.moveRight = false; break;
+    switch( e.keyCode ) {
+        case 38: /*up*/ controlsRover.moveForward = false; break;
+        case 40: /*down*/ controlsRover.moveBackward = false; break;
+        case 37: /*left*/ controlsRover.moveLeft = false; break;
+        case 39: /*right*/ controlsRover.moveRight = false; break;
     }
 };
 
