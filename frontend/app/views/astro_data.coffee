@@ -116,7 +116,6 @@ module.exports = class AstroDataView extends View
       )
       
       @socket.on('updateAlpha', (data) =>
-        console.log 'updateAlpha'
         @webfits.setAlpha(data.alpha)
       )
       
