@@ -209,85 +209,78 @@ module.exports = class AstroDataView extends View
     @socket.send 'updateAlpha', {alpha: value} if @socket_active
   
   getHistogram: (band, arr, min, max) =>
-    # range = max - min
-    # 
-    # sum = 0
-    # nBins = 3000
-    # binSize = range / nBins
-    # length = arr.length
-    # 
-    # histogram = new Uint32Array(nBins + 1)
-    # for value in arr
-    #   sum += value
-    #   index = Math.floor(((value - min) / range) * nBins)
-    #   histogram[index] += 1
-    # 
-    # min = Math.min.apply(Math, histogram)
-    # max = Math.max.apply(Math, histogram)
-    
-    @drawHistogram(band, min, max, arr)
-  
-  drawHistogram: (band, min, max, arr) =>
+    range = max - min
+
+    sum = 0
+    nBins = 3000
+    binSize = range / nBins
+    length = arr.length
+
+    histogram = new Uint32Array(nBins + 1)
+    for value in arr
+      sum += value
+      index = Math.floor(((value - min) / range) * nBins)
+      histogram[index] += 1
+
+    min = Math.min.apply(Math, histogram)
+    max = Math.max.apply(Math, histogram)
+
+    @drawHistogram(band, min, max, histogram)
+
+  drawHistogram: (band, min, max, histogram) =>
     margin =
-      top: 10
-      right: 30
-      bottom: 30
-      left: 30
-    
-    w = 300 - margin.right - margin.left
-    h = 150 - margin.top - margin.bottom
-    
+      top: 0
+      right: 20
+      bottom: 10
+      left: 10
+
+    w = 200 - margin.right - margin.left
+    h = 100 - margin.top - margin.bottom
+
     # Create x and y scales
     x = d3.scale.linear()
       .domain([min, max])
       .range([0, w])
-    
+
     y = d3.scale.linear()
-      .domain([0, d3.max(arr)])
+      .domain([0, d3.max(histogram)])
       .range([0, h])
-    
-    # Create an x axis
-    xAxis = d3.svg.axis()
-      .scale(x)
-      .orient('bottom')
-    
-    array = []
-    for value in arr
-      array.push value + min
-    data = d3.layout.histogram()(array)
-    
+
     svg = d3.select(".histogram-#{band}").append('svg')
       .attr('width', w + margin.right + margin.left)
       .attr('height', w + margin.top + margin.bottom)
       .append('g')
       .attr('transform', "translate(#{margin.left}, #{margin.top})")
-    
+
+    # Create a parent element for the svg
+    main = svg.append('g')
+      .attr('transform', "translate(#{margin.left}, #{margin.top})")
+      .attr('width', w)
+      .attr('height', h)
+      .attr('class', 'main')
+
     # Add the data
-    bar = svg.selectAll('.bar')
-      .data(data)
-      .enter().append('g')
-      .attr('class', 'bar')
-      .attr('transform', (d) ->
-        "translate(#{x(d.dx)}, #{y(d.y)})"
-      )
-    
-    bar.append('rect')
-      .attr('x', 1)
-      .attr('width', x(data[0].dx) - 1)
-      .attr('height', (d) -> return h - y(d.y))
-    
-    bar.append('text')
-      .attr('dy', '.75em')
-      .attr('y', 6)
-      .attr('x', x(data[0].dx) / 2)
-      .attr('text-anchor', 'middle')
-      .text((d) -> return d)
-    
-    svg.append('g')
-      .attr('class', 'x axis')
-      .attr('transform', "translate(0, #{h})")
-      .call(xAxis)
-    
+    bars = svg.selectAll('rect')
+      .data(histogram)
+      .enter().append('rect')
+      .attr('x', ((d, i) ->
+        return i * 1.25 + margin.left
+      ))
+      .attr('y', ((d) ->
+        return h - y(d) + margin.top - 1.5
+      ))
+      .attr('width', 1)
+      .attr('height', ((d) ->
+        return y(d)
+      ))
+      .attr('class', band)
+
+    # Create an x axis
+    xAxis = d3.svg.axis()
+      .scale(x)
+      .ticks(6)
+      .orient('bottom')
+
     # Append the x axis to the parent object
     main.append('g')
       .attr('transform', "translate(#{-1 * margin.left}, #{h})")
