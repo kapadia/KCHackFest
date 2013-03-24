@@ -4,7 +4,11 @@
 
 Interactive, collaborative visualization for FITS, Solar System, and Curiosity goodness.
 
-## Local Setup
+## Setup
+
+### Client
+
+For development, you'll need `brunch`:
 
     # Install Brunch globally
     npm install brunch -g
@@ -13,11 +17,19 @@ Interactive, collaborative visualization for FITS, Solar System, and Curiosity g
     cd frontend
     npm install .
     
-    # To run local server
+    # To build and run local server
     brunch w -s
-    
-    # To build
-    brunch build
+
+To deploy, run `brunch build` and serve the `frontend/public` directory.
+
+### Server
+
+The backend depends on Tornado: `pip install tornado`
+
+    python backend/backend.py
+
+Make sure you refresh the page any time the backend needs to restart,
+otherwise the websocket connections will silently fail.
 
 ## Notes
 
@@ -26,3 +38,5 @@ I made the JS for the solar system like this:
     git clone https://github.com/rybotron/three-solarsystem
     cd three-solarsystem
     cat `grep 'script src' index.html | grep -v libs | cut -d'"' -f2 | xargs` >solar_system.js
+
+It's been modified pretty heavily since, so dropping that file in will no longer be enough.
