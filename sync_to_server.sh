@@ -4,5 +4,5 @@ git pull
 cd frontend
 brunch build
 cd ..
-rsync -ru frontend/public administrator@10.18.14.2:~/KCHackFest/frontend
+rsync -vru frontend/public administrator@10.18.14.2:~/KCHackFest/frontend
 
