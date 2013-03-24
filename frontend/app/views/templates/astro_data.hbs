@@ -10,43 +10,45 @@
   <article class='first'>
     <div class='pixel-info'>
       <table>
-        <tr>
+        <tr title="Current X coordinate">
           <td>X</td>
           <td data-type='x'>-</td>
         </tr>
-        <tr>
+        <tr title="Current Y coordinate">
           <td>Y</td>
           <td data-type='y'>-</td>
         </tr>
-        <tr>
+        <tr title="Right ascension (latitudinal)">
           <td>RA</td>
           <td data-type='ra'>-</td>
         </tr>
-        <tr>
+        <tr title="Declination (longitudinal)">
           <td>Dec</td>
           <td data-type='dec'>-</td>
         </tr>
-        <tr>
+        <tr title="Red (current pixel)">
           <td>R</td>
           <td data-type='r'>-</td>
         </tr>
-        <tr>
+        <tr title="Green (current pixel)">
           <td>G</td>
           <td data-type='g'>-</td>
         </tr>
-        <tr>
+        <tr title="Blue (current pixel)">
           <td>B</td>
           <td data-type='b'>-</td>
         </tr>
       </table>
     </div>
-    <label>
+    <label title="Decrease bright parts">
       &alpha;
-      <input data-type="q" type="range" min="0.01" max="0.4" step="0.01" value="0.03"/>
+      <input data-type="q" type="range" min="0.01" max="0.4" step="0.01" value="0.03"
+      title="Decrease bright parts"/>
     </label>
-    <label>
+    <label title="Increase dim parts">
       Q
-      <input data-type="alpha" type="range" min="0.01" max="1" step="0.01" value="0.01"/>
+      <input data-type="alpha" type="range" min="0.01" max="1" step="0.01" value="0.01"
+      title="Increase dim parts"/>
     </label>
     
     <div class='metadata'></div>
@@ -60,9 +62,9 @@
   
   <article class='last'>
     <div class='histograms'>
-      <div class='histogram histogram-i'></div>
-      <div class='histogram histogram-r'></div>
-      <div class='histogram histogram-g'></div>
+      <div class='histogram histogram-i' title="Red values"></div>
+      <div class='histogram histogram-r' title="Blue values"></div>
+      <div class='histogram histogram-g' title="Green values"></div>
     </div>
     
     <div class='metadata'></div>
