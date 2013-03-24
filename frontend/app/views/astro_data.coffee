@@ -13,11 +13,13 @@ module.exports = class AstroDataView extends View
   
   
   initialize: ->
+    Handlebars.registerPartial('overlay', require('views/templates/overlay'))
     @once 'get-data', @getData
     
   render: =>
     @html @template
     @trigger 'get-data'
+    @html @overlay
     @
   
   # Get remote data (should only be called once)
