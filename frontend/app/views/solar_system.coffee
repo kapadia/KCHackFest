@@ -46,3 +46,4 @@ module.exports = class SolarSystemView extends View
         s.updateDisplay())
 
     window.conn = conn
+    @socket = conn
