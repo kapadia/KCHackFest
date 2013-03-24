@@ -41,6 +41,12 @@ module.exports = class AstroDataView extends View
 
     # Use options to pass dataunit to callback
     opts.dataunit = dataunit
+    
+    # Pick one FITS header for general observation metadata
+    if opts.band is 'i'
+      header = f.getHeader()
+      table = d3.select(".astro-data .metadata").append('table')
+      tbody = table.append('tbody')
 
     # Read the data (spawns worker)
     dataunit.getFrameAsync(0, @createVisualization, opts)
@@ -56,14 +62,14 @@ module.exports = class AstroDataView extends View
     
     # Get histogram
     @getHistogram(band, arr, extent[0], extent[1])
-
+    
     # Create color composite when all bands are received
     if @webfits.nImages is 3
-      @webfits.setScales(1.0, 1.0, 1.0);
-      @webfits.setCalibrations(1.0, 1.0, 1.0);
-      @webfits.setAlpha(0.03);
-      @webfits.setQ(0.01);
-      @webfits.drawColor('i', 'g', 'r');
+      @webfits.setScales(1.0, 1.0, 1.0)
+      @webfits.setCalibrations(1.0, 1.0, 1.0)
+      @webfits.setAlpha(0.03)
+      @webfits.setQ(0.01)
+      @webfits.drawColor('i', 'g', 'r')
       
     # setup websocket and event callbacks
     @socket = new CSLESocket('astro_data', "ws://#{window.location.hostname}:8888")
