@@ -26,6 +26,8 @@ module.exports = class AstroDataView extends View
     
     @xCoord = $('[data-type="x"]')
     @yCoord = $('[data-type="y"]')
+    @ra = $('[data-type="ra"]')
+    @dec = $('[data-type="dec"]')
     @rChannel = $('[data-type="r"]')
     @gChannel = $('[data-type="g"]')
     @bChannel = $('[data-type="b"]')
@@ -44,8 +46,10 @@ module.exports = class AstroDataView extends View
     for band in @bands
       opts =
         band: band
-        filename: "frame-#{band}-006073-4-0063.fits"
-      new astro.FITS.File("data/frame-#{band}-006073-4-0063.fits", @fitsHandler, opts)
+        # filepath: "http://astrojs.s3.amazonaws.com/sample/#{band}-band-normalized.fits"
+        # filepath: "data/#{band}-band-normalized.fits"
+        filepath: "data/frame-#{band}-006073-4-0063.fits"
+      new astro.FITS.File(opts.filepath, @fitsHandler, opts)
   
   fitsHandler: (f, opts) =>
     # Get the reference to data chunk from the file
@@ -54,8 +58,10 @@ module.exports = class AstroDataView extends View
     # Use options to pass dataunit to callback
     opts.dataunit = dataunit
     
-    # Pick one FITS header for general observation metadata
+    # Pick one FITS header for general observation metadata and sky coordinates
     if opts.band is 'i'
+      
+      # Get header, select a few keys, render to table
       header = f.getHeader()
       table = d3.select(".astro-data .metadata").append('table')
       tbody = table.append('tbody')
@@ -78,7 +84,28 @@ module.exports = class AstroDataView extends View
         .enter()
         .append("td")
           .text((d) -> d)
-          
+      
+      # Get coordinate parameters from header
+      wcsParams =
+        NAXIS: header.get('NAXIS')
+        RADESYS: header.get('RADESYS')
+        CTYPE1: header.get('CTYPE1')
+        CRPIX1: header.get('CRPIX1')
+        CRVAL1: header.get('CRVAL1')
+        CUNIT1: header.get('CUNIT1')
+        CTYPE2: header.get('CTYPE2')
+        CRPIX2: header.get('CRPIX2')
+        CRVAL2: header.get('CRVAL2')
+        CUNIT2: header.get('CUNIT2')
+        CD1_1: header.get('CD1_1')
+        CD1_2: header.get('CD1_2')
+        CD2_1: header.get('CD2_1')
+        CD2_2: header.get('CD2_2')
+      @wcs = new WCS.Mapper(wcsParams)
+      
+      # Cache width for coordinate transformations
+      @width = header.get('NAXIS1')
+      
     # Read the data (spawns worker)
     dataunit.getFrameAsync(0, @createVisualization, opts)
   
@@ -111,9 +138,13 @@ module.exports = class AstroDataView extends View
       @socket_active = true
       
       @socket.on('mouse-move', (data) =>
-        @webfits.xOffset = data.x
-        @webfits.yOffset = data.y
+        # Update the image
+        @webfits.xOffset = data.xOffset
+        @webfits.yOffset = data.yOffset
         @webfits.draw()
+        
+        # Update the info panel
+        @updateInfo(data.x, data.y)
       )
       
       @socket.on('zoom', (data) =>
@@ -137,28 +168,37 @@ module.exports = class AstroDataView extends View
       # Setup mouse callbacks for webfits
       callbacks =
         onmousemove: (x, y) =>
-        
-          # Get flux values
-          r = @arrays['i'][2048 * y + x].toFixed(3)
-          g = @arrays['r'][2048 * y + x].toFixed(3)
-          b = @arrays['g'][2048 * y + x].toFixed(3)
-          @xCoord.text(x)
-          @yCoord.text(y)
-          @rChannel.text(r)
-          @gChannel.text(b)
-          @bChannel.text(g)
           
-          if @socket_active and @webfits.drag
+          @updateInfo(x, y)
+          
+          if @socket_active
             @socket.send 'mouse-move',
-              x: @webfits.xOffset
-              y: @webfits.yOffset
+              x: x
+              y: y
+              xOffset: @webfits.xOffset
+              yOffset: @webfits.yOffset
         onzoom: =>
           if @socket_active
             @socket.send 'zoom',
               z: @webfits.zoom
 
       @webfits.setupControls(callbacks)
+  
+  updateInfo: (x, y) =>
+    sky = @wcs.pixelToCoordinate([x, y])
     
+    # Get flux values
+    r = @arrays['i'][@width * y + x].toFixed(3)
+    g = @arrays['r'][@width * y + x].toFixed(3)
+    b = @arrays['g'][@width * y + x].toFixed(3)
+    @xCoord.text(x)
+    @yCoord.text(y)
+    @ra.text(sky.ra.toFixed(6))
+    @dec.text(sky.dec.toFixed(6))
+    @rChannel.text(r)
+    @gChannel.text(b)
+    @bChannel.text(g)
+  
   onQ: (e) =>
     value = e.currentTarget.value
     @webfits.setQ(value)
