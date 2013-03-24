@@ -160,7 +160,9 @@ module.exports = class AstroDataView extends View
         @webfits.setAlpha(data.alpha)
         @sliders['alpha'].value = data.alpha
       )
-      
+      @socket.on('pilot-changed', (pilot_disabled) ->
+        document.getElementById('pilot')?.disabled = pilot_disabled
+      )
       @socket.set_onclose (e) =>
         @socket_active = false
 

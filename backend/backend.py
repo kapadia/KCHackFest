@@ -29,7 +29,8 @@ def take_pilot(conn, data):
     if c.conn is conn:
       continue
     c.is_pilot = False
-    c.can_broadcast =False
+    c.can_broadcast = False
+    c.send(json.dumps({'event':'pilot-changed','data':True}))
 
 
 def release_pilot(conn, data):
@@ -39,6 +40,7 @@ def release_pilot(conn, data):
   doc_pilots[conn.doc] = False
   for c in doc_clients[conn.doc]:
     c.can_broadcast = True
+    c.send(json.dumps({'event':'pilot-changed','data':False}))
 
 
 def list_users(conn, data):

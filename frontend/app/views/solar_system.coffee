@@ -36,5 +36,7 @@ module.exports = class SolarSystemView extends View
       for s in window.gui.scales
         s.object[data.property] = data.val
         s.updateDisplay())
+    conn.on 'pilot-changed', (pilot_disabled) ->
+      document.getElementById('pilot')?.disabled = pilot_disabled
 
     return window.conn = conn
