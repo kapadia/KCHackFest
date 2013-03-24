@@ -28,4 +28,8 @@
       self.event_handlers[msg.event](msg.data);
     };
   };
+
+  this.CSLESocket.prototype.close = function() {
+    this.ws.close();
+  };
 })(this);
