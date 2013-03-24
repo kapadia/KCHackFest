@@ -6044,9 +6044,9 @@ function lensFlareUpdateCallback( object ) {
 	// 	this.orbiting( this.startTime, eph.period, .00001 );
 	// };
 
-	LOD.orbiting = function( eph, time, scale ){
+	LOD.orbiting = function( eph, JD, scale ){
 
-		JD = time.Date2Julian();
+		//JD = time.Date2Julian();
 
 		var DEGS = 180/Math.PI;      // convert radians to degrees
 		var RADS = Math.PI/180;      // convert degrees to radians
@@ -6338,6 +6338,7 @@ var stats,
 var trajectory;
 
 var time, t;
+var currentTime = new Date();
 var clock = new THREE.Clock();
 
 var mouse = { x: -1000, y: 0 },
@@ -6449,7 +6450,7 @@ function init() {
 	})
 
 	t = new timer();
-	t.count = 2456365;
+	t.count = 0;
 
 	buildGUI();
 
@@ -6569,7 +6570,6 @@ function animate() {
 
 	var delta = clock.getDelta();
 	var time = clock.getElapsedTime();
-	var currentTime = new Date();
 
 	requestAnimationFrame( animate );
 
@@ -6582,7 +6582,10 @@ function animate() {
 	stats.update();
 	TWEEN.update();
 	setSolarSystemScale();
-	planetsOrbit( currentTime );
+
+	var JD = currentTime.Date2Julian();
+	JD = t.count;
+	planetsOrbit( JD );
 
 	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
 	projector.unprojectVector( vector, camera );
@@ -6615,6 +6618,7 @@ function animate() {
 
 	uniforms.time.value = time + delta;
 	t.count = t.count + 1 * t.multiplier;
+
 
 	camera.lookAt( camTarget );
 	render();
