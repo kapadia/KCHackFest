@@ -6513,6 +6513,23 @@ $(document).ready( function() {
 	        animate();
 			$("#loadtext").hide();
     };
+
+  $('html').filedrop({
+    url: '/upload',
+    paramname: 'lolcat',
+    drop: function() {
+      console.log(window.INTERSECTED);
+    },
+    uploadStarted: function(i, file, len) {
+      console.log('started');
+      //$.post('upload/test.html', function(data) {
+      //  $('.result').html(data);
+      //});
+    },  
+    uploadFinished: function(i, file, response, time) {
+      console.log('finished');
+    }   
+  });
 } );
 
 function init() {
