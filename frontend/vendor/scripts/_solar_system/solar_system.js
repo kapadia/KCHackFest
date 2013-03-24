@@ -6356,10 +6356,9 @@ function makeSolarSystem(){
 
 	findSemiMinor();
 	ssScale = new solarSystemScale();
-
 	ssScale.s = 1;
-	ssScale.sunScale = 1;
-	ssScale.planetScale = 1;
+	ssScale.sunScale = 2;
+	ssScale.planetScale = 10;
 
 
 	var ss3D = new THREE.Object3D();
