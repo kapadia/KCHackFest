@@ -25,6 +25,9 @@ module.exports = class AppView extends View
       c.style.left = "#{data.x}px"
       c.style.top  = "#{data.y}px"
     )
+    @socket.set_onclose (e) ->
+      # reset the mousemove handler
+      document.onmousemove = (->)
     document.onmousemove = (e) =>
       @socket.send 'cursor',
         id: @uuid

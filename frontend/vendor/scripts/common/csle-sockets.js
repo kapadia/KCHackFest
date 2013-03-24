@@ -25,8 +25,13 @@
   this.CSLESocket.prototype.on_event = function(self) {
     return function(res) {
       var msg = JSON.parse(res.data);
-      self.event_handlers[msg.event](msg.data);
+      if (msg.event in self.event_handlers)
+        self.event_handlers[msg.event](msg.data);
     };
+  };
+
+  this.CSLESocket.prototype.set_onclose = function(callback){
+    this.ws.onclose = callback;
   };
 
   this.CSLESocket.prototype.close = function() {
