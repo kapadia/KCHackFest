@@ -30,6 +30,10 @@
     };
   };
 
+  this.CSLESocket.prototype.set_onclose = function(callback){
+    this.ws.onclose = callback;
+  };
+
   this.CSLESocket.prototype.close = function() {
     this.ws.close();
   };
