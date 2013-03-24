@@ -5421,14 +5421,15 @@ var danceSequence = [
 var currentDance = null; // global token, one dance fn holds this per instant
 
 function makeDance(name, sequence, loop) {
-	return function(noSendMessage) {
-		if (!noSendMessage) conn.send('toggle-dance', name);
-		if (currentDance === name) { // disable
+	return function(noSendMessage, superHackyStartStop) {
+		if (currentDance === name || superHackyStartStop === 'stop') { // disable
+            if (!noSendMessage) conn.send('stop-dance', name);
 			controlsRover.moveLeft = false;
 			controlsRover.moveRight = false;
 			currentDance = null;
 			return;
 		}
+        if (!noSendMessage) conn.send('start-dance', name);
 		currentDance = name;
 		var danceStep = 0;
 		function nextStep() {

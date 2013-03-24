@@ -33,8 +33,10 @@ module.exports = class CuriosityView extends View
       part.rotation[data.property] = data.val
       displays.arm[data.subpart].object[data.property] = data.val
       displays.arm[data.subpart].updateDisplay()
-    conn.on 'toggle-dance', (name) ->
-      window.dances[name](true)
+    conn.on 'start-dance', (name) ->
+      window.dances[name](true, 'start')
+    conn.on 'stop-dance', (name) ->
+      window.dances[name](true, 'stop')
     conn.on 'pilot-changed', (pilot_disabled) ->
       document.getElementById('pilot')?.disabled = pilot_disabled
     window.conn = conn
