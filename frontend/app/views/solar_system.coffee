@@ -5,12 +5,9 @@ module.exports = class SolarSystemView extends View
   className: 'solar_system'
   el: 'body.application'
 
-  initialize: =>
-    @once 'init-socket', @initSocket
-
   render: =>
     @html @template
-    @trigger 'init-socket'
+    @socket = @initSocket()
     @
 
   initSocket: ->
@@ -45,5 +42,4 @@ module.exports = class SolarSystemView extends View
         s.object[data.property] = data.val
         s.updateDisplay())
 
-    window.conn = conn
-    @socket = conn
+    return window.conn = conn
