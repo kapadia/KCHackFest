@@ -1,3 +1,128 @@
+var stats,
+	scene,
+	camera,
+	renderer,
+	projector,
+	composer,
+	controls,
+	tween,
+	camTarget,
+	solarSystem;
+
+var PointerLock = (function() {
+    var self = {};
+    var enabled = false;
+    var element;
+    var handlers = {
+        mousemove: [],
+        enabled: [],
+        disabled: [],
+    };
+    var prefixes = ['', 'moz', 'webkit'];
+
+
+    function handleEvent(name, e) {
+        for (var i = 0; i < handlers[name].length; i++) {
+            handlers[name][i](e);
+        }
+    };
+
+    $(function() {
+        element = document.body;
+        element.addEventListener('mousemove', function(e) {
+	    if (!enabled) return;
+            var ev = {};
+            var movementNames = ['movementX', 'movementY'];
+            for (var i = 0; i < movementNames.length; i++)
+                for (var j = 0; j < prefixes.length; j++) {
+                    var prefix = prefixes[j];
+                    var combinedName = prefix + 'M' + movementNames[i].slice(1); // lolhack
+                    if (e[combinedName] !== undefined)
+                        ev[movementNames[i]] = e[combinedName];
+                }
+            handleEvent('mousemove', ev);
+        });
+    });
+
+    self.addEventListener = function(evName, callback) {
+        if (evName in handlers)
+            handlers[evName].push(callback);
+        else
+            throw new Error('Unsupported');
+    };
+
+    self.addEventListener("mousemove", function(event) {
+	conn.send("delta-mouse-move", {x: event.movementX, y: event.movementY})
+	controls.rotateByDelta(event.movementX, event.movementY)
+    })
+
+    self.enableLock = function(opts) {
+	self.onDisable = opts.onDisable || function(){}
+
+        var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
+
+        if (havePointerLock) {
+
+            var pointerlockchange = function (e) {
+                if (document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element) {
+                    handleEvent('enabled', e);
+                    enabled = true;
+                } else {
+                    handleEvent('disabled', e);
+                    enabled = false;
+                }
+            }
+
+            var pointerlockerror = function ( event ) {
+                console.log('Failed to get pointer lock');
+            }
+
+            for (var i = 0; i < prefixes.length; i++) {
+                var prefix = prefixes[i];
+                document.addEventListener(prefix + 'pointerlockchange', pointerlockchange, false);
+                document.addEventListener(prefix + 'pointerlockerror', pointerlockerror, false);
+            }
+
+            // Ask the browser to lock the pointer
+            element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+
+            if ( /Firefox/i.test( navigator.userAgent ) ) {
+                var fullscreenchange = function ( event ) {
+                    if (document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element) {
+                        document.removeEventListener( 'fullscreenchange', fullscreenchange );
+                        document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
+                        element.requestPointerLock();
+                    }
+                }
+                document.addEventListener('fullscreenchange', fullscreenchange, false);
+                document.addEventListener('mozfullscreenchange', fullscreenchange, false);
+
+                element.requestFullscreen = element.requestFullscreen ||
+		    element.mozRequestFullscreen ||
+		    element.mozRequestFullScreen ||
+		    element.webkitRequestFullscreen;
+                element.requestFullscreen();
+            } else {
+                element.requestPointerLock();
+            }
+        } else {
+            console.log("Your browser doesn't seem to support Pointer Lock API");
+        }
+    };
+
+    self.disableLock = function(){
+	self.onDisable()
+        element.exitPointerLock = element.exitPointerLock || element.mozExitPointerLock || element.webkitExitPointerLock;
+        if (element.exitPointerLock) element.exitPointerLock();
+    }
+
+    self.addEventListener('disabled', self.disableLock)
+
+    return self;
+
+})();
+
+
 /**
  * @author qiao / https://github.com/qiao
  * @author mrdoob / http://mrdoob.com
@@ -206,6 +331,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	    event.preventDefault();
 
+	    scope.startTime = (new Date()).getTime()
+
 	    if ( event.button === 0 || event.button === 2 ) {
 		state = STATE.ROTATE;
 		rotateStart.set( event.clientX, event.clientY );
@@ -220,13 +347,17 @@ THREE.OrbitControls = function ( object, domElement ) {
 	    document.addEventListener( 'mouseup', onMouseUp, false );
 	}
 
+        scope.rotateByDelta = function(dx,dy) {
+	    scope.rotateLeft( 2 * Math.PI * dx / PIXELS_PER_ROUND * scope.userRotateSpeed );
+	    scope.rotateUp( 2 * Math.PI * dy / PIXELS_PER_ROUND * scope.userRotateSpeed );
+	}
+
         function handleMouseMove(x,y) {
 	    if ( state === STATE.ROTATE ) {
 		rotateEnd.set(x, y);
 		rotateDelta.subVectors( rotateEnd, rotateStart );
 
-		scope.rotateLeft( 2 * Math.PI * rotateDelta.x / PIXELS_PER_ROUND * scope.userRotateSpeed );
-		scope.rotateUp( 2 * Math.PI * rotateDelta.y / PIXELS_PER_ROUND * scope.userRotateSpeed );
+		scope.rotateByDelta(rotateDelta.x, rotateDelta.y)
 
 		rotateStart.copy( rotateEnd );
 	    } else if ( state === STATE.ZOOM ) {
@@ -243,21 +374,27 @@ THREE.OrbitControls = function ( object, domElement ) {
 	    }
        }
 
-	function onMouseMove( event ) {
+	function onMouseMove(event) {
 	    event.preventDefault();
 	    conn.send('mouse-move', {x: event.clientX, y: event.clientY})
 	    handleMouseMove(event.clientX, event.clientY)
 	}
 
 	function onMouseUp( event ) {
-	    if ( ! scope.userRotate ) return;
+	    if (!scope.userRotate) return;
 
-	    document.removeEventListener( 'mousemove', onMouseMove, false );
-	    document.removeEventListener( 'mouseup', onMouseUp, false );
+	    document.removeEventListener('mousemove', onMouseMove, false);
+	    document.removeEventListener('mouseup', onMouseUp, false);
 
-	    state = STATE.NONE;
+	    function disable() {
+		conn.send('mouse-up', {x: event.clientX, y: event.clientY})
+		state = STATE.NONE
+	    }
 
-	    conn.send('mouse-up', {x: event.clientX, y: event.clientY})
+	    if((new Date()).getTime() - scope.startTime < 250)
+		PointerLock.enableLock({onDisable: disable});
+	    else
+		disable()
 	}
 
         function handleMouseWheel(delta) {
@@ -287,7 +424,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
 	this.domElement.addEventListener( 'mousedown', onMouseDown, false );
 	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
-	this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false ); // firefox
+	this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, false); // firefox
 
     	conn.on('camera-rotate', function(data){
 	    state = STATE.ROTATE;
@@ -302,6 +439,9 @@ THREE.OrbitControls = function ( object, domElement ) {
         })
         conn.on('mouse-move', function(data) {
 	    handleMouseMove(data.x, data.y)
+	})
+        conn.on("delta-mouse-move", function(event) {
+	    scope.rotateByDelta(event.x, event.y)
 	})
         conn.on('mouse-up', function(data) {
 	    state = STATE.NONE
@@ -6044,9 +6184,9 @@ function lensFlareUpdateCallback( object ) {
 	// 	this.orbiting( this.startTime, eph.period, .00001 );
 	// };
 
-	LOD.orbiting = function( eph, time, scale ){
+	LOD.orbiting = function( eph, JD, scale ){
 
-		JD = time.Date2Julian();
+		//JD = time.Date2Julian();
 
 		var DEGS = 180/Math.PI;      // convert radians to degrees
 		var RADS = Math.PI/180;      // convert degrees to radians
@@ -6324,20 +6464,10 @@ var VIEW_ANGLE = 45,
 	NEAR = 1,
 	FAR = 100000;
 
-var stats,
-	scene,
-	camera,
-	renderer,
-	projector,
-	composer,
-	controls,
-	tween,
-	camTarget,
-	solarSystem;
-
 var trajectory;
 
 var time, t;
+var currentTime = new Date();
 var clock = new THREE.Clock();
 
 var mouse = { x: -1000, y: 0 },
@@ -6398,7 +6528,7 @@ function init() {
 	$container = $("#container");
 
 	scene = new THREE.Scene();
-	scene.fog = new THREE.FogExp2( 0x000000, 0.000055 );
+	scene.fog = new THREE.FogExp2( 0x000000, 0.000045 );
 
 	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR );
 	camera.position.y = 200;
@@ -6410,7 +6540,7 @@ function init() {
 	fovValue = 0.5 / Math.tan(camera.fov * Math.PI / 360) * HEIGHT;
 
 	var ambientLight = new THREE.AmbientLight( 0x404040 );
-	ambientLight.color.setRGB( .15, .15, .15 );
+	ambientLight.color.setRGB( .5, .5, .5 );
 	scene.add(ambientLight);
 
 	var pointLight = new THREE.PointLight(0xFFFFFF, 1.3);
@@ -6449,7 +6579,7 @@ function init() {
 	})
 
 	t = new timer();
-	t.count = 2456365;
+	t.count = 0;
 
 	buildGUI();
 
@@ -6538,6 +6668,7 @@ function setupScene(){
 	// scene.add( ruler );
 
 	scene.add( solarSystem );
+    	scene.add( dae )
 	// scene.add( lensFlares );
 }
 
@@ -6569,7 +6700,6 @@ function animate() {
 
 	var delta = clock.getDelta();
 	var time = clock.getElapsedTime();
-	var currentTime = new Date();
 
 	requestAnimationFrame( animate );
 
@@ -6582,7 +6712,10 @@ function animate() {
 	stats.update();
 	TWEEN.update();
 	setSolarSystemScale();
-	planetsOrbit( currentTime );
+
+	var JD = currentTime.Date2Julian();
+	JD = t.count;
+	planetsOrbit( JD );
 
 	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
 	projector.unprojectVector( vector, camera );
@@ -6615,6 +6748,7 @@ function animate() {
 
 	uniforms.time.value = time + delta;
 	t.count = t.count + 1 * t.multiplier;
+
 
 	camera.lookAt( camTarget );
 	render();
