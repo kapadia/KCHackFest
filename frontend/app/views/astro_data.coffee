@@ -5,8 +5,7 @@ module.exports = class AstroDataView extends View
   className: 'astro_data'
   el: 'body.application'
   bands: ['g', 'r', 'i']
-  sampleSpectra: 'http://astrojs.s3.amazonaws.com/sample/spec-0406-51869-0012.fits'
-  socket: new CSLESocket('astro_data', 'ws://localhost:8888')
+  socket: new CSLESocket('astro_data', "ws://#{window.location.hostname}:8888")
   
   events:
     'change input[data-type="q"]'     : 'onQ'
@@ -44,35 +43,6 @@ module.exports = class AstroDataView extends View
 
     # Read the data (spawns worker)
     dataunit.getFrameAsync(0, @createVisualization, opts)
-    
-    # Render header to DOM
-    @createHeader(f.getHeader())
-  
-  createHeader: (header) ->
-    
-    # Format header data for D3
-    data = []
-    cards = header.cards
-    for key, value of cards
-      data.push [key, value.value]
-    
-    # Append table and tbody
-    table = d3.select('.headers')
-      .append('table')
-    tbody = table.append('tbody')
-    
-    # Create row for each object
-    rows = tbody.selectAll("tr")
-      .data(data)
-      .enter()
-      .append("tr")
-    
-    # Create cell for each object in row
-    cells = rows.selectAll("td")
-      .data((d) -> d)
-      .enter()
-      .append("td")
-        .text((d) -> return d)
   
   createVisualization: (arr, opts) =>
     dataunit = opts.dataunit
@@ -82,6 +52,9 @@ module.exports = class AstroDataView extends View
     band = opts.band
     
     @webfits.loadImage(band, arr, width, height)
+    
+    # Get histogram
+    @getHistogram(band, arr, extent[0], extent[1])
 
     # Create color composite when all bands are received
     if @webfits.nImages is 3
@@ -120,27 +93,92 @@ module.exports = class AstroDataView extends View
 
   onAlpha: (e) =>
     @webfits.setAlpha(e.currentTarget.value)
+  
+  getHistogram: (band, arr, min, max) =>
+    range = max - min
     
-  getSpectra: (f) =>
-    dataunit = f.getDataUnit()
+    sum = 0
+    nBins = 300
+    binSize = range / nBins
+    length = arr.length
     
-    opts = {}
-    opts.dataunit = dataunit
+    histogram = new Uint32Array(nBins + 1)
+    for value in arr
+      sum += value
+      index = Math.floor(((value - min) / range) * nBins)
+      histogram[index] += 1
+      
+    # Apply log to histogram
+    for value, index in histogram
+      histogram[index] = Math.log(value)
+      
+    min = Math.min.apply(Math, histogram)
+    max = Math.max.apply(Math, histogram)
     
-    # Read the first 10 rows to generate a table
-    rows = []
-    for i in [0..9]
-      rows.push dataunit.getRow()
+    @drawHistogram(band, min, max, histogram)
+  
+  drawHistogram: (band, min, max, histogram) =>
+    console.log band, min, max, histogram
+    margin =
+      top: 0
+      right: 20
+      bottom: 60
+      left: 10
     
-    table = d3.select('.spectra')
-      .append('table')
-    thead = table.append('thead')
-    tbody = table.append('tbody')
+    w = 390 - margin.right - margin.left
+    h = 260 - margin.top - margin.bottom
     
-    # Create the table header
-    thead.append('tr')
-      .selectAll('th')
-      .data(dataunit.columns)
-      .enter()
-      .append("th")
-        .text( (c) -> c)
+    # Create x and y scales
+    x = d3.scale.linear()
+      .domain([min, max])
+      .range([0, w])
+    
+    y = d3.scale.linear()
+      .domain([0, d3.max(histogram)])
+      .range([0, h])
+    
+    svg = d3.select(".histogram-#{band}").append('svg')
+      .attr('width', w + margin.right + margin.left)
+      .attr('height', w + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', "translate(#{margin.left}, #{margin.top})")
+      
+    # Create a parent element for the svg
+    main = svg.append('g')
+      .attr('transform', "translate(#{margin.left}, #{margin.top})")
+      .attr('width', w)
+      .attr('height', h)
+      .attr('class', 'main')
+    
+    # Add the data
+    bars = svg.selectAll('rect')
+      .data(histogram)
+      .enter().append('rect')
+      .attr('x', ((d, i) ->
+        return i * 1.25 + margin.left
+      ))
+      .attr('y', ((d) ->
+        return h - y(d) + margin.top - 1.5
+      ))
+      .attr('width', 1)
+      .attr('height', ((d) ->
+        return y(d)
+      ))
+    
+    # Create an x axis
+    xAxis = d3.svg.axis()
+      .scale(x)
+      .ticks(6)
+      .orient('bottom')
+    
+    # Append the x axis to the parent object
+    main.append('g')
+      .attr('transform', "translate(#{-1 * margin.left}, #{h})")
+      .attr('class', 'main axis date')
+      .call(xAxis)
+    
+    # Append the brush
+    svg.append('g')
+      .attr('class', 'brush')
+      .attr('width', w)
+      .attr('height', h)
