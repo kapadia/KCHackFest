@@ -22,6 +22,13 @@ For development, you'll need `brunch`:
 
 To deploy, run `brunch build` and serve the `frontend/public` directory.
 
+**Drag-n-Drop Solar System**:
+Currently, dynamic textures for the solar system require serving the frontend
+with a PHP-enabled server (generally Apache + mod_php).
+To enable this, make sure the `images/solar_system` directory is writeable:
+
+    chmod a+rw images/solar_system
+
 **Configuration**:
 If you need to change the backend port number
 or if you're serving the frontend from a non-root directory,
