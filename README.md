@@ -22,11 +22,22 @@ For development, you'll need `brunch`:
 
 To deploy, run `brunch build` and serve the `frontend/public` directory.
 
+**Configuration**:
+If you need to change the backend port number
+or if you're serving the frontend from a non-root directory,
+edit the file `frontend/app/initialize.coffee` to reflect your setup.
+Then, `brunch build` to generate the frontend with your specfic configuration.
+
 ### Server
 
 The backend depends on Tornado: `pip install tornado`
 
     python backend/backend.py
+
+If you need to serve from a different port number than the default (8898),
+pass the number to the script on the command line:
+
+    python backend/backend.py 12345
 
 Make sure you refresh the page any time the backend needs to restart,
 otherwise the websocket connections will silently fail.
