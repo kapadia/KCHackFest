@@ -30,7 +30,9 @@ module.exports = class HomeView extends View
     setInterval((=>
         unless @socket.is_ready()
           user_count.textContent = 'no connection'
-          @socket.reconnect()
+          # TODO: this currently causes bugs where it reconnects spuriously.
+          #  We should re-enable this when that is sorted out.
+          #@socket.reconnect()
         @socket.send('list-users',{}, true)
       ), 500)
     @socket.set_onclose (e) ->
