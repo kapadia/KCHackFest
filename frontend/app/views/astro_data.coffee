@@ -50,8 +50,8 @@ module.exports = class AstroDataView extends View
     for band in @bands
       opts =
         band: band
-        # filepath: "http://astrojs.s3.amazonaws.com/sample/#{band}-band-normalized.fits"
-        filepath: "data/frame-#{band}-006073-4-0063.fits"
+        filepath: "http://astrojs.s3.amazonaws.com/sample/#{band}-band-normalized.fits"
+        # filepath: "data/frame-#{band}-006073-4-0063.fits"
       new astro.FITS.File(opts.filepath, @fitsHandler, opts)
 
   fitsHandler: (f, opts) =>
