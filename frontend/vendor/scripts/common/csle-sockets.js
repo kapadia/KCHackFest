@@ -40,4 +40,13 @@
     this.send('goodbye', {uuid: CSLE.Views.AppView.uuid});  // tell others we're going away
     this.ws.close();
   };
+
+  this.CSLESocket.prototype.is_ready = function() {
+    return this.ws.readyState == 1;
+  };
+
+  this.CSLESocket.prototype.reconnect = function() {
+    this.ws = new WebSocket(this.url + "/docs/" + this.doc);
+    this.ws.onmessage = this.on_event(this);
+  };
 })(this);

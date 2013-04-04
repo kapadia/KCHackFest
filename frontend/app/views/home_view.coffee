@@ -27,7 +27,12 @@ module.exports = class HomeView extends View
         total += users
       user_count.textContent = total
     )
-    setInterval((=> @socket.send('list-users',{}, true)), 500)
+    setInterval((=>
+        unless @socket.is_ready()
+          user_count.textContent = 'no connection'
+          @socket.reconnect()
+        @socket.send('list-users',{}, true)
+      ), 500)
     @socket.set_onclose (e) ->
       # reset the mousemove handler
       document.onmousemove = (->)
