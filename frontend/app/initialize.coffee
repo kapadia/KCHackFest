@@ -9,6 +9,9 @@ CSLE.Collections ?= {}
 #  then CIZZLE_WEB_ROOT should be set to '/foo/bar/cizzle/'
 CIZZLE_WEB_ROOT = '/'
 
+# set this to the port of the websocket server (backend.py)
+CSLE.websocket_port = '8898'
+
 $ ->
 
   # Initialize App

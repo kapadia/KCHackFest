@@ -138,7 +138,7 @@ module.exports = class AstroDataView extends View
       @ready = true
 
       # Setup websocket and event callbacks when all three files are loaded
-      @socket = new CSLESocket('astro_data', "ws://#{window.location.hostname}:8898")
+      @socket = new CSLESocket('astro_data', "ws://#{window.location.hostname}:#{CSLE.websocket_port}")
       @socket_active = true
 
       @socket.on('mouse-move', (data) =>

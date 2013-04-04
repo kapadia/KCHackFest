@@ -22,7 +22,7 @@ module.exports = class SolarSystemView extends View
         return planet
 
   initSocket: =>
-    conn = new CSLESocket('solar_system', "ws://#{window.location.hostname}:8898")
+    conn = new CSLESocket('solar_system', "ws://#{window.location.hostname}:#{CSLE.websocket_port}")
 
     textures = {}
     for planet in ephemeris

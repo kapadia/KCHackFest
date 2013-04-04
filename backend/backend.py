@@ -1,5 +1,6 @@
 import tornado.web
 import json
+import sys
 from collections import defaultdict
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
@@ -100,5 +101,18 @@ application = tornado.web.Application([
 
 
 if __name__ == "__main__":
-  application.listen(8898)
+  # parse an optional port number from the command line
+  if len(sys.argv) > 1:
+    try:
+      port = int(sys.argv[1])
+    except:
+      print "Usage: %s [port]" % sys.argv[0]
+      sys.exit(1)
+  else:
+    port = 8898
+  assert 999 < port < 100000, "invalid port number (%d)" % port
+
+  # start listening
+  application.listen(port)
+  print "server started, listening on port %d" % port
   IOLoop.instance().start()
