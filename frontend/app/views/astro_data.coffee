@@ -35,8 +35,6 @@ module.exports = class AstroDataView extends View
     @imageEl = $("article .image")
 
     @html @overlay
-    setTimeout((=>@socket.send 'can-i-pilot', {}, true), 500)
-
     @
 
   # Get remote data (should only be called once)
@@ -140,6 +138,7 @@ module.exports = class AstroDataView extends View
       # Setup websocket and event callbacks when all three files are loaded
       @socket = new CSLESocket('astro_data', "ws://#{window.location.hostname}:#{CSLE.websocket_port}")
       @socket_active = true
+      setTimeout((=>@socket.send 'can-i-pilot', {}, true), 500)
 
       @socket.on('mouse-move', (data) =>
         # Update the image
